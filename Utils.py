@@ -69,7 +69,7 @@ def adjust_resolution(im):
 
     		im = cv2.resize(im, (prefsize, 3000))
 	'''
-    return im
+	return im
 
 # Even this program accepting images both in portrait or landscape orientations
 # I decided to fix the portrait as the orientation pattern.
