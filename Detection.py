@@ -8,9 +8,6 @@ from scipy.spatial import distance
 from scipy.ndimage.morphology import binary_fill_holes
 from sklearn.cluster import KMeans
 
-import matplotlib.pyplot as plt
-
-
 # Detect the central circle. This is useful to correctly crop the palette image
 # image: rgb image
 def detect_circle_mark(image):
