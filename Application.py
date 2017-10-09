@@ -18,7 +18,7 @@ print("Process started")
 
 # image of palette
 imname = '36.2SEM.CENC.PERI.SONY.jpg'
-im = cv2.imread("/home/joaoherrera/Pictures/AeTrapp/Sony/" + imname, 1)
+im = cv2.imread("/src/samples/" + imname, 1)
 
 im = Utils.adjust_position(im)
 im = Utils.adjust_resolution(im)
