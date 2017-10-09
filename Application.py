@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import matplotlib.pyplot as plt
 import cv2
 
 from skimage import io, filters, feature, img_as_ubyte, morphology, exposure
@@ -18,18 +17,11 @@ import Defects
 print("Process started")
 
 # image of palette
-imname = '06.4SEM.CENC.INTRA.SONY.jpg'
-im = cv2.imread("/src/samples/" + imname, 1)
+imname = '36.2SEM.CENC.PERI.SONY.jpg'
+im = cv2.imread("/home/joaoherrera/Pictures/AeTrapp/Sony/" + imname, 1)
 
 im = Utils.adjust_position(im)
 im = Utils.adjust_resolution(im)
-
-
-# The first step is to check if the image really has a pallete with a circle at its center.
-
-im = Defects.hasPalette(im)
-if type(im) == type(""):
-	exit()
 
 
 # Check if palette has a defect. Currently there are 6 implementations of defects analysis:
@@ -45,6 +37,13 @@ if Defects.isDark(im) < 130.0:
 	print(error)
 	exit()
 
+
+# The first step is to check if the image really has a pallete with a circle at its center.
+'''
+im = Defects.hasPalette(im)
+if type(im) == type(""):
+	exit()
+'''
 
 print("Detecting circle...\n")
 
@@ -95,7 +94,6 @@ bimage = img_as_ubyte(bimage) # converting image format to unsigned byte
 print("Performing border detection...")
 objects = detect.object_detection(bimage)
 
-#Training.border_lenght(bimage, objects, params[2])
 eggs, clusters = Classification.border_lenght_classification(objects, params[2])
 
 #IO._write_results(bimage, eggs, clusters, 'out.jpg')
@@ -128,9 +126,12 @@ clusters = Classification.border_shape_classification(shapesc, clusters, "shcls.
 # Get colors info of remaining objects...
 
 print("\nPerforming color detection...")
-#IO._write_results(bimage, eggs, clusters)
+
 areas_egg = []
 areas_clusters = []
+
+imHSV = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)
+imLAB = cv2.cvtColor(im, cv2.COLOR_BGR2LAB)
 
 for i in range(len(eggs)):
 	areas_egg.append(detect.get_object_area(eggs[i], bimage))
@@ -138,16 +139,18 @@ for i in range(len(eggs)):
 for i in range(len(clusters)):
 	areas_clusters.append(detect.get_object_area(clusters[i], bimage))
 
-#eggs = detect.get_object_color(eggs, areas_egg, im)
-#clusters = detect.get_object_color(clusters, areas_clusters, im)
 
-#eggs, clusters = detect.get_object_color(eggs, areas_egg, clusters, areas_clusters, im)
+ecolors = detect.get_object_color(areas_egg, im, imHSV, imLAB)
+ccolors = detect.get_object_color(areas_clusters, im, imHSV, imLAB)
 
-#print "Color analysis: " + str(len(eggs)) + " eggs."
-#print "Color analysis: " + str(len(clusters)) + " clusters."
+#Training.object_color(im, eggs, ecolors, True)
+#Training.object_color(im, clusters, ccolors, False)
 
+eggs = Classification.object_color_classification(ecolors, eggs, True)
+clusters = Classification.object_color_classification(ccolors, clusters, False)
 
-
+print("Color - Eggs: " + str(len(eggs)))
+print("Color - Clusters: " + str(len(clusters)))
 
 # ============================================================== CLUSTER TEXTURE
 
@@ -161,7 +164,7 @@ if len(clusters) > 0:
 		cluster_textures.append(detect.get_cluster_texture(cluster, imGrey))
 
 	#Training.cluster_texture(im, clusters, cluster_textures)
-	#clusters = Classification.cluster_texture_classification(cluster_textures, clusters)
+	clusters = Classification.cluster_texture_classification(cluster_textures, clusters)
 
 
 
@@ -183,7 +186,7 @@ else:
 
 
 for cluster in clusters:
-	total_eggs += np.round(float(cluster['lenght']) / float(eggs_size_avg))
+	total_eggs += np.ceil(float(cluster['lenght']) / float(eggs_size_avg))
 
 
 print(str(total_eggs) + " eggs found.")
