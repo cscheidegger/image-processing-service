@@ -18,7 +18,7 @@ print("Process started")
 
 # image of palette
 imname = '36.2SEM.CENC.PERI.SONY.jpg'
-im = cv2.imread("/src/samples/" + imname, 1)
+im = cv2.imread("samples/" + imname, 1)
 
 im = Utils.adjust_position(im)
 im = Utils.adjust_resolution(im)
@@ -191,5 +191,5 @@ for cluster in clusters:
 
 print(str(total_eggs) + " eggs found.")
 
-IO._write_results(bimage, eggs, clusters, imname)
+#IO._write_results(bimage, eggs, clusters, imname)
 #io.imsave("/home/joaoherrera/Desktop/" + imname[:-4] + "_out.jpg", bimage)
