@@ -12,6 +12,7 @@
 
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn import svm
+from sklearn.neighbors import KNeighborsClassifier
 import IO
 import numpy as np
 
@@ -20,8 +21,9 @@ import numpy as np
 datapath = "data/"
 
 # ~~ CLASSIFIERS ~~
-clf = LDA()
-#clf = svm.SVC()
+lda = LDA()
+svm = svm.SVC(kernel='linear')
+knn = KNeighborsClassifier()
 
 # Classificate borders according to its lenght
 # objects: list of borders coordinates
@@ -31,7 +33,7 @@ def border_lenght_classification(objects, radius):
 
 	for i in range(len(objects)):
 		ratio = objects[i]['lenght'] / radius
-	
+
 		if ratio > 0.19 and ratio < 0.31:
 			eggs.append(objects[i])
 
@@ -40,34 +42,7 @@ def border_lenght_classification(objects, radius):
 
 	return eggs, clusters
 
-	'''
-	knowledge = IO.open_data(datapath +	"sz.dat")
 
-	x_train = knowledge[:, :-1]
-	y_train = knowledge[:, -1:]
-
-	# fit training
-	clf.fit(x_train, y_train)
-
-	eggs = []
-	clusters = []
-
-	# start classification
-	for i in range(len(objects)):
-		predict = clf.predict(np.array([objects[i]['lenght'] / radius, objects[i]['lenght']]).reshape(1, -1))[0]
-
-		# if the object isn't an egg or a cluster of eggs... remove it!
-		if predict == 1:
-			eggs.append(objects[i])
-
-		elif predict == 2:
-			clusters.append(objects[i])
-
-	print "Borders size: " + str(len(eggs)) + " eggs."
-	print "Borders size: " + str(len(clusters)) + " clusters."
-
-	return eggs, clusters
-	'''
 
 # Classification of shapes!
 # shape: Feret measures
@@ -78,43 +53,52 @@ def border_shape_classification(shapes, eggs, filename):
 	x_train = knowledge[:, :-1]
 	y_train = knowledge[:, -1:]
 
-	clf.fit(x_train, y_train)
+	svm.fit(x_train, y_train)
 
 	reggs = []
 
 	for i in range(len(shapes)):
-		predict = clf.predict(np.array(shapes[i]).reshape(1, -1))[0]
+		predict = svm.predict(np.array(shapes[i]).reshape(1, -1))[0]
 
 		if predict == 0:
 			reggs.append(eggs[i])
 
-	print "Shape analysis: " + str(len(reggs)) + "."
+	print("Shape analysis: " + str(len(reggs)) + ".")
 
 	return reggs
+
 
 
 # Classification of objects according to its color
 # colors: array of colors
 # eggs: list containing eggs objects
 # clusters: lits containing cluster objects
-def object_color_classification(colors, objects):
-	knowledge = IO.open_data(datapath +	"cl.dat")
+def object_color_classification(colors, objects, isEgg):
+	knowledge = None
+
+	if isEgg == True:
+		knowledge = IO.open_data(datapath +	"cl.dat")
+	else:
+		knowledge = IO.open_data(datapath +	"clcls.dat")
+
 
 	x_train = knowledge[:, :-1]
 	y_train = knowledge[:, -1:]
 
-	clf.fit(x_train, y_train)
+	lda.fit(x_train, y_train)
 
 	robjects = []
 
-	for i in range(len(colors)):
-		predict = clf.predict(np.array(colors[i]).reshape(1, -1))[0]
+	if colors != None:
+		for i in range(len(colors)):
+			predict = lda.predict(np.array(colors[i]).reshape(1, -1))[0]
 
-		#print predict
-		if predict == 0:
-			robjects.append(objects[i])
+			#print predict
+			if predict == 0:
+				robjects.append(objects[i])
 
 	return robjects
+
 
 
 # Classification of clusters according to its texture
@@ -126,13 +110,15 @@ def cluster_texture_classification(textures, clusters):
 	x_train = knowledge[:, :-1]
 	y_train = knowledge[:, -1:]
 
-	clf.fit(x_train, y_train)
+	lda.fit(x_train, y_train)
 
 	rclusters = []
 
 	for i in range(len(clusters)):
-		predict = clf.predict(np.array(textures[i]).reshape(1, -1))[0]
-		print predict
+		predict = lda.predict(np.array(textures[i]).reshape(1, -1))[0]
+
+		print(predict)
+		
 		if predict == 0:
 			rclusters.append(clusters[i])
 

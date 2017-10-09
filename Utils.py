@@ -57,7 +57,7 @@ def adjust_resolution(im):
 	rows, cols, _ = im.shape
 
 	if rows < 2000 and cols < 1000:
-		print "ERROR: Higher resolution image is required to perform the identification process."
+		print("ERROR: Higher resolution image is required to perform the identification process.")
 		exit()
 
 	'''

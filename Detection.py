@@ -292,42 +292,27 @@ def get_object_area(object, bimage):
 
 # Return the true colors info of an object
 # Format: EggRGB + BackgroundRGB + Luminance(eggs) -
-def get_object_color(objects, obcoord, imRGB):
-	objcolor = []
-	newob = []
+def get_object_color(obcoord, imRGB, imHSV, imLAB):
 
-	if len(objects) == 0:
-		return objects
+	cfeat = [] # Color features
 
-	background_mean = np.mean(imRGB, axis=(1, 0)) 	# mean of whole picture
+	if len(obcoord) == 0:
+		return None
 
-	for i in range(len(obcoord)):
-		objcolor.append(np.mean(imRGB[obcoord[i][:, 0], obcoord[i][:, 1]], axis=0))
+	background_BGR_mean = np.mean(imRGB, axis=(1, 0)) 	# mean of whole picture
+	background_HSV_mean = np.mean(imHSV, axis=(1, 0))
+	background_LAB_mean = np.mean(imLAB, axis=(1, 0))
 
+	for id_ob in range(len(obcoord)):
+		colors = []
+		colors.append(np.abs(np.mean(imRGB[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0) - background_BGR_mean))
+		colors.append(np.abs(np.mean(imHSV[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0) - background_HSV_mean))
+		colors.append(np.abs(np.mean(imLAB[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0) - background_LAB_mean))
+
+		cfeat.append(np.array(colors).flatten())
+
+	return cfeat
 	
-	objmean = np.mean(objcolor, axis=0) 
-	center_mean = objmean + (background_mean - objmean)  # mean of all object's mean
-
-	distmat = distance.squareform(distance.pdist(objcolor, 'euclidean'))
-
-	# skearn kmeans forces to run with more or equal the number of clusters
-	# Yes, not all things are perfect :)
-	objcolor.append(background_mean)
-	objcolor.append(center_mean)
-
-	kmeans = KMeans(n_clusters=3, init=np.array([objmean, center_mean, background_mean])).fit(objcolor)
-	labels = kmeans.labels_[:-2]
-
-	print labels
-
-	for i in range(len(objects)):
-		print distance.euclidean(objcolor[i], background_mean)
-		if labels[i] == 0 and distance.euclidean(objcolor[i], background_mean) >= 70.0:
-			newob.append(objects[i])
-	
-
-	return newob
-
 
 
 # Get the cluster texture using LBPriu2
