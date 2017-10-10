@@ -9,8 +9,10 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 '''
 
+import json
 import numpy as np
 from skimage import io, img_as_ubyte
+
 
 # Open a local database (text) and return its content
 # fpath: database path
@@ -36,7 +38,7 @@ def save_data(data, fpath, fmt='%.3f', mode='a'):
 # bimage: binary image
 # eggs: list of coordinates
 # clusters: list of coordinates
-def _write_results(bimage, eggs, clusters, imname):
+def _write_results_on_machine(bimage, eggs, clusters, imname):
 	bkimage = img_as_ubyte(np.zeros_like(bimage))
 	rows, cols = bkimage.shape
 
@@ -49,3 +51,16 @@ def _write_results(bimage, eggs, clusters, imname):
 			bkimage[pix[0], pix[1]] = 255
 
 	io.imsave("/home/joaoherrera/Desktop/" + imname[:-4] + "_out.jpg", bkimage)
+
+
+
+# Result info must be placed according to JSON properties
+def json_packing(neggs, imres, version):
+
+	output = {
+		'eggs': str(neggs),
+		'imresolution': str(imres),
+		'ipversion': str(version)
+	}
+
+	return json.dumps(output)
