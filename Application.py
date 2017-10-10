@@ -14,6 +14,10 @@ import types
 import IO
 import Defects
 
+AEIP_CUR_VERSION = 1.0
+
+
+
 print("Process started")
 
 # image of palette
@@ -24,8 +28,12 @@ im = Utils.adjust_position(im)
 im = Utils.adjust_resolution(im)
 
 
+# image dimensions
+rows, cols = im.shape[:2]
+
+
 # Check if palette has a defect. Currently there are 6 implementations of defects analysis:
-# low brightness, missing borders, out of focus, shadows and water on the surface.
+# low brightness, missing borders, out of focus, shadows and water on the surface. Some of them are detected using deep learning algorithm.
 
 if Defects.isBlurred(im) < 17.0:
 	error = "ERROR: Blurred image!"
@@ -96,7 +104,7 @@ objects = detect.object_detection(bimage)
 
 eggs, clusters = Classification.border_lenght_classification(objects, params[2])
 
-#IO._write_results(bimage, eggs, clusters, 'out.jpg')
+#IO._write_results_on_machine(bimage, eggs, clusters, 'out.jpg')
 
 
 
@@ -189,7 +197,7 @@ for cluster in clusters:
 	total_eggs += np.ceil(float(cluster['lenght']) / float(eggs_size_avg))
 
 
-print(str(total_eggs) + " eggs found.")
+print(IO.json_packing(int(total_eggs), str(str(cols) + 'x' + str(rows)), AEIP_CUR_VERSION))
 
-#IO._write_results(bimage, eggs, clusters, imname)
+#IO._write_results_on_machine(bimage, eggs, clusters, imname)
 #io.imsave("/home/joaoherrera/Desktop/" + imname[:-4] + "_out.jpg", bimage)
