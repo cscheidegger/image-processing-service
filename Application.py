@@ -17,7 +17,6 @@ import Defects
 AEIP_CUR_VERSION = 1.0
 
 
-
 print("Process started")
 
 # image of palette
@@ -200,4 +199,3 @@ for cluster in clusters:
 print(IO.json_packing(int(total_eggs), str(str(cols) + 'x' + str(rows)), AEIP_CUR_VERSION))
 
 #IO._write_results_on_machine(bimage, eggs, clusters, imname)
-#io.imsave("/home/joaoherrera/Desktop/" + imname[:-4] + "_out.jpg", bimage)
