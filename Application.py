@@ -14,43 +14,39 @@ import types
 import IO
 import Defects
 
-AEIP_CUR_VERSION = 1.0
+
 
 
 print("Process started")
 
 # image of palette
 imname = '36.2SEM.CENC.PERI.SONY.jpg'
-im = cv2.imread("/src/samples/" + imname, 1)
+im = cv2.imread("/home/joaoherrera/Pictures/AeTrapp/Sony/" + imname, 1)
 
 im = Utils.adjust_position(im)
 im = Utils.adjust_resolution(im)
 
 
-# image dimensions
-rows, cols = im.shape[:2]
+# Setting some relevant informations that are going to be returned to server through JSON dictionary...
+IO.set_outputs(im)
 
 
-# Check if palette has a defect. Currently there are 6 implementations of defects analysis:
+# Check if the palette has a defect. Currently there are 6 implementations of defects analysis:
 # low brightness, missing borders, out of focus, shadows and water on the surface. Some of them are detected using deep learning algorithm.
-
 if Defects.isBlurred(im) < 17.0:
-	error = "ERROR: Blurred image!"
-	print(error)
+	print(IO.json_packing_error('ERR_001'))
 	exit()
 
 if Defects.isDark(im) < 130.0:
-	error = "ERROR: The image is too dark!"
-	print(error)
+	print(IO.json_packing_error('ERR_002'))
 	exit()
 
 
 # The first step is to check if the image really has a pallete with a circle at its center.
-'''
 im = Defects.hasPalette(im)
 if type(im) == type(""):
 	exit()
-'''
+
 
 print("Detecting circle...\n")
 
@@ -63,8 +59,7 @@ for att in range(3):
 	params = detect.detect_circle_mark(im)
 
 	if type(params) == type(None):
-		error = "ERROR: Failed to recognize the central circle."
-		print(error)
+		print(IO.json_packing_error('ERR_003'))
 
 	if att == 2:
 		exit()
@@ -80,8 +75,7 @@ gsimage = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
 # Check if the croped image has shadows or something else that might
 # hinder the egg recognition
 if Defects.shadow_index(im) > 0.13:
-	error = "ERROR: The image has shadows or something else that might hinder the egg recognition"
-	print(error)
+	print(IO.json_packing_error('ERR_004'))
 	exit()
 
 
@@ -102,8 +96,6 @@ print("Performing border detection...")
 objects = detect.object_detection(bimage)
 
 eggs, clusters = Classification.border_lenght_classification(objects, params[2])
-
-#IO._write_results_on_machine(bimage, eggs, clusters, 'out.jpg')
 
 
 
@@ -159,6 +151,7 @@ clusters = Classification.object_color_classification(ccolors, clusters, False)
 print("Color - Eggs: " + str(len(eggs)))
 print("Color - Clusters: " + str(len(clusters)))
 
+
 # ============================================================== CLUSTER TEXTURE
 
 if len(clusters) > 0:
@@ -196,6 +189,6 @@ for cluster in clusters:
 	total_eggs += np.ceil(float(cluster['lenght']) / float(eggs_size_avg))
 
 
-print(IO.json_packing(int(total_eggs), str(str(cols) + 'x' + str(rows)), AEIP_CUR_VERSION))
+print(IO.json_packing_success(int(total_eggs)))
 
 #IO._write_results_on_machine(bimage, eggs, clusters, imname)
