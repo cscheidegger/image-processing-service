@@ -1,0 +1,6 @@
+ERR_001$Imagem desfocada ou com baixa qualidade.
+ERR_002$Imagem muito escura.
+ERR_003$Não foi possível detectar o círculo central.
+ERR_OO4$A imagem apresenta sombras ou alguma outra coisa que possa atrapalhar o reconhecimento dos ovos.
+ERR_005$Bordas da paleta não encontradas.
+ERR_006$Bordas da paleta e círculo central não encontrados.
