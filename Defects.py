@@ -83,13 +83,11 @@ def hasPalette(im):
 			
 			# The objects are validated if and only if its recognition score are higher than 98%
 			if float(palettes[1]) <= 0.98:
-				error = "ERROR: Palette borders not found"
-				print(error)
+				print(IO.json_packing_error('ERR_005'))
 				return error
 			
 			if float(circles[1]) <= 0.98:
-				error = "ERROR: Central circle not found"
-				print(error)
+				print(IO.json_packing_error('ERR_003'))
 				return error
 
 			coord = coordinates[np.where(probs[:, 1] == palettes[1])[0][0]]
@@ -99,24 +97,20 @@ def hasPalette(im):
 			return im
 
 		elif len(palettes) == 0 and len(circles) == 0:
-			error = "ERROR: Palette borders and circle weren't found"
-			print(error)
+			print(IO.json_packing_error('ERR_006'))
 			return error
 
 
 		elif len(palettes) > 0:
-			error = "ERROR: Central circle not found"
-			print(error)
+			print(IO.json_packing_error('ERR_003'))
 			return error
 
 		else:
-			error = "ERROR: Palette borders not found"
-			print(error)
+			print(IO.json_packing_error('ERR_005'))
 			return error
 
 	else:
-		error = "ERROR: Palette borders and circle aren't found"
-		print(error)
+		print(IO.json_packing_error('ERR_006'))
 		return error
 
 
