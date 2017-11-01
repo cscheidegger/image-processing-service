@@ -36,7 +36,7 @@ if Defects.isBlurred(im) < 17.0:
 	print(IO.json_packing_error('ERR_001'))
 	exit()
 
-if Defects.isDark(im) < 130.0:
+if Defects.isDark(im) < 125.0:
 	print(IO.json_packing_error('ERR_002'))
 	exit()
 
@@ -45,6 +45,14 @@ if Defects.isDark(im) < 130.0:
 im = Defects.hasPalette(im)
 if type(im) == type(""):
 	exit()
+
+
+# Watermark detection.
+if Defects.watermark_detection(im) == True:
+	print(IO.json_packing_error('ERR_007'))
+	exit()
+	
+exit()
 
 
 print("Detecting circle...\n")
@@ -160,7 +168,7 @@ if len(clusters) > 0:
 	imGrey = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
 
 	for cluster in areas_clusters:
-		cluster_textures.append(detect.get_cluster_texture(cluster, imGrey))
+		cluster_textures.append(detect.lbpriu2_texture_analysis(cluster, imGrey))
 
 	#Training.cluster_texture(im, clusters, cluster_textures)
 	clusters = Classification.cluster_texture_classification(cluster_textures, clusters)
