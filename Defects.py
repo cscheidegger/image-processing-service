@@ -11,14 +11,12 @@
 
 import numpy as np
 import cv2
-
-from scipy.signal import argrelextrema
-
+import IO
+import Detection
 import DeepLearning
+import Classification
 
-from scipy import signal
-from skimage import io, filters
-
+from scipy.ndimage.filters import gaussian_filter1d
 
 # return the blurry rate of a given image
 # im: RGB image
@@ -84,11 +82,11 @@ def hasPalette(im):
 			# The objects are validated if and only if its recognition score are higher than 98%
 			if float(palettes[1]) <= 0.98:
 				print(IO.json_packing_error('ERR_005'))
-				return error
+				return 'error'
 			
 			if float(circles[1]) <= 0.98:
 				print(IO.json_packing_error('ERR_003'))
-				return error
+				return 'error'
 
 			coord = coordinates[np.where(probs[:, 1] == palettes[1])[0][0]]
 			im = im[coord[1] : coord[3], coord[0] : coord[2]] # crop image
@@ -98,21 +96,60 @@ def hasPalette(im):
 
 		elif len(palettes) == 0 and len(circles) == 0:
 			print(IO.json_packing_error('ERR_006'))
-			return error
+			return 'error'
 
 
 		elif len(palettes) > 0:
 			print(IO.json_packing_error('ERR_003'))
-			return error
+			return 'error'
 
 		else:
 			print(IO.json_packing_error('ERR_005'))
-			return error
+			return 'error'
 
 	else:
 		print(IO.json_packing_error('ERR_006'))
-		return error
+		return 'error'
 
 
 
+# Glare recognition algorithm. The best solution found is to recognize it by texture analysis.
+# imRGB: RGB image
+def watermark_detection(imRGB):
+	luminance = cv2.cvtColor(imRGB, cv2.COLOR_BGR2Lab)[:, :, 0]
 
+
+	# histogram analysis must be done locally
+	framesize = 200
+	rows, cols = luminance.shape
+
+	#..then we crop the whole image into squares of framesize x framesize
+	areas = []
+	for row in range((rows - 1) // framesize):
+		for col in range((cols - 1) // framesize):
+			areas.append(luminance[row * framesize : (row + 1) * framesize, col * framesize : (col + 1) * framesize])
+
+
+	# check all areas..
+	for area in areas:
+		histogram = []
+
+		# extract its histogram
+		for i in range(256):
+			histogram.append(len(area[area == i]))
+
+		# find the bin which has more pixels
+		mean = np.where(histogram == np.max(histogram))[0][0] 
+
+		histogram = histogram[mean:] 
+		histogram = gaussian_filter1d(histogram, sigma=2) # gaussian filter to smooth the histogram
+
+		minimum = np.min(histogram)
+		minpos = np.where(histogram == np.min(histogram))[0][0]
+
+		if minpos < (len(histogram) - 5):
+
+			if np.sum(histogram[-5:]) > 50:
+				return True
+
+	return False
