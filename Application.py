@@ -51,8 +51,7 @@ if type(im) == type(""):
 if Defects.watermark_detection(im) == True:
 	print(IO.json_packing_error('ERR_007'))
 	exit()
-	
-exit()
+
 
 
 print("Detecting circle...\n")
