@@ -312,14 +312,10 @@ def get_object_color(obcoord, imRGB, imHSV, imLAB):
 	
 
 
-# Get the cluster texture using LBPriu2
-# cluster: area of a cluster
-# imGray: gray-scale image
-def get_cluster_texture(cluster, imGray):
+# get texture using through LBPriu2
+def lbpriu2_texture_analysis(area, imGray):
 
 	imLBP = feature.local_binary_pattern(imGray, 8, 1, 'uniform')
-	pixels = imLBP[cluster[:, 0], cluster[:, 1]]
+	pixels = imLBP[area[:, 0], area[:, 1]]
 
-	histLBP = np.histogram(pixels, bins=9)[0]
-
-	return histLBP
+	return np.histogram(pixels, bins=9)[0]
