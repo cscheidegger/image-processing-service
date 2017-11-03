@@ -4,3 +4,5 @@ __pycache__/
 *$py.class
 
 keras_frcnn/*
+.data
+node_modules

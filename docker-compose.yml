@@ -1,6 +1,18 @@
 version: '2'
 services:
-  ips:
+  server:
     build: .
+    command: nodemon server/
+    links:
+      - mongo
+    ports:
+      - 3030:3030
     volumes:
-      - .:/src
+      - /src/node_modules
+      - .:/src                
+  mongo:
+    image: mongo
+    volumes:
+      - ./.data/database:/data/db
+    ports:
+      - 27018:27017

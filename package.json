@@ -1,0 +1,26 @@
+{
+  "name": "image-processing-service",
+  "version": "0.0.0",
+  "description": "Aetrapp Image Processing Service",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aetrapp/image-processing-service.git"
+  },
+  "author": "",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/aetrapp/image-processing-service/issues"
+  },
+  "homepage": "https://github.com/aetrapp/image-processing-service#readme",
+  "dependencies": {
+    "compression": "^1.7.1",
+    "cors": "^2.8.4",
+    "feathers": "^2.2.3",
+    "feathers-errors": "^2.9.2",
+    "feathers-rest": "^1.8.1"
+  }
+}
