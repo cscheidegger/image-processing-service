@@ -8,15 +8,12 @@ RUN conda install -y opencv keras tensorflow \
 
 # Install APT dependencies 
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends \
-  libgtk2.0-dev \
-  && rm -rf /tmp/* /var/lib/apt/lists/*  
-
-# Install Node.js from Nodesource
-RUN apt-get update \
   && curl -sL https://deb.nodesource.com/setup_8.x | bash - \
-  && apt-get install -y nodejs --no-install-recommends \
-  && rm -rf /tmp/* /var/lib/apt/lists/*  
+  && apt-get install -y --no-install-recommends \
+    libgtk2.0-dev \
+    nodejs \
+    unzip \
+  && rm -rf /tmp/* /var/lib/apt/lists/*    
 
 # Install GOSU for stepping down from root
 ENV GOSU_VERSION 1.7
@@ -36,6 +33,12 @@ COPY . /src
 # Install global npm dependencies and app
 RUN npm install -g yarn nodemon \
   && yarn install 
+
+# Download model
+RUN mkdir /model \
+  && wget -qO- -O /model/model_frcnn.zip https://www.dropbox.com/s/t8twhr9xdyzpgon/model_frcnn.zip \
+  && unzip -o /model/model_frcnn.zip -d /model \
+  && rm /model/model_frcnn.zip
 
 # Patch entrypoint
 COPY entrypoint.sh /entrypoint.sh
