@@ -3,14 +3,17 @@
   "version": "0.0.0",
   "description": "Aetrapp Image Processing Service",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/aetrapp/image-processing-service.git"
   },
-  "author": "",
+  "contributors": [{
+    "name": "João Herrera",
+    "email": "joao.herrera@outlook.com"
+  },{
+    "name": "Vitor George",
+    "email": "vitor.george@aparabolica.com.br"
+  }],
   "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/aetrapp/image-processing-service/issues"
