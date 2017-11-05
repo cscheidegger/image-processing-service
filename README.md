@@ -18,7 +18,7 @@ curl -H "Content-Type: application/json" -X POST -d \
       "jobData": {
          "imageUrl": "https://github.com/aetrapp/image-processing-service/raw/master/samples/06.4SEM.CENC.INTRA.SONY.jpg"
       }
-     }' http://localhost:3030/scheduler/api/jobs/create
+     }' http://localhost:3030/agenda/api/jobs/create
 ````
 
 If you need shell access to the server, get your container name with `docker ps` and run:
