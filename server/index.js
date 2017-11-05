@@ -1,14 +1,10 @@
-const expressServerConfig = require("./config");
-const expressMiddleware = require("./middleware");
-const rest = require("feathers-rest");
-const path = require("path");
+const express = require("express");
+const scheduler = require("./scheduler");
 
-const app = expressServerConfig()
-  .configure(rest())
-//   .configure(services)
-  .configure(expressMiddleware);
+const mongoConnectionString = "mongodb://mongo/agenda";
 
-const server = app.listen(3030);
-server.on("listening", () =>
-  console.log(`Feathers application started on port 3030`)
-);
+var app = express();
+app.set("mongoConnectionString", mongoConnectionString);
+app.use("/agenda", scheduler({ mongoConnectionString }));
+
+app.listen(3030);

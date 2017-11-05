@@ -9,7 +9,8 @@ services:
       - 3030:3030
     volumes:
       - /src/node_modules
-      - .:/src                
+      - .:/src
+      - ./.data/images:/images
   mongo:
     image: mongo
     volumes:

@@ -17,10 +17,8 @@
   },
   "homepage": "https://github.com/aetrapp/image-processing-service#readme",
   "dependencies": {
-    "compression": "^1.7.1",
-    "cors": "^2.8.4",
-    "feathers": "^2.2.3",
-    "feathers-errors": "^2.9.2",
-    "feathers-rest": "^1.8.1"
+    "agenda": "^1.0.3",
+    "agendash": "^0.4.0",
+    "request": "^2.83.0"
   }
 }
