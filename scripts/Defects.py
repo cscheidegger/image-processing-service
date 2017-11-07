@@ -80,11 +80,11 @@ def hasPalette(im):
 		if len(palettes) > 0 and len(circles) > 0:
 			
 			# The objects are validated if and only if its recognition score are higher than 98%
-			if float(palettes[1]) <= 0.98:
+			if np.round(float(palettes[1])) <= 0.98:
 				print(IO.json_packing_error('ERR_005'))
 				return 'error'
 			
-			if float(circles[1]) <= 0.98:
+			if np.round(float(circles[1])) <= 0.975:
 				print(IO.json_packing_error('ERR_003'))
 				return 'error'
 

@@ -19,7 +19,7 @@ import Defects
 print("Process started")
 
 # image of palette
-imname = '36.2SEM.CENC.PERI.SONY.jpg'
+imname = '06.4SEM.CENC.INTRA.SONY.jpg'
 im = cv2.imread("/src/samples/" + imname, 1)
 
 im = Utils.adjust_position(im)
@@ -36,7 +36,7 @@ if Defects.isBlurred(im) < 17.0:
 	print(IO.json_packing_error('ERR_001'))
 	exit()
 
-if Defects.isDark(im) < 125.0:
+if Defects.isDark(im) < 110.0:
 	print(IO.json_packing_error('ERR_002'))
 	exit()
 
@@ -61,14 +61,17 @@ print("Detecting circle...\n")
 # In case the circle isn't yet recognized, we stop the execution
 
 params = None
-for att in range(3):
+for att in range(15):
 	params = detect.detect_circle_mark(im)
 
 	if type(params) == type(None):
 		print(IO.json_packing_error('ERR_003'))
+		
+		if att == 14:
+			exit()
+		else:
+			continue
 
-	if att == 2:
-		exit()
 	else:
 		break
 
@@ -89,9 +92,10 @@ print("Performing segmentation...")
 
 
 # detect borders using canny
-cbimage = feature.canny(gsimage, sigma=3)
+cbimage = feature.canny(gsimage, sigma=2)
 bimage = morphology.binary_dilation(cbimage)
 bimage = img_as_ubyte(bimage) # converting image format to unsigned byte
+
 
 
 # extracting the features...
@@ -158,41 +162,44 @@ print("Color - Eggs: " + str(len(eggs)))
 print("Color - Clusters: " + str(len(clusters)))
 
 
-# ============================================================== CLUSTER TEXTURE
-
-if len(clusters) > 0:
-	cluster_textures = []
-	print("\nExtracting cluster textures...")
-
-	imGrey = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-
-	for cluster in areas_clusters:
-		cluster_textures.append(detect.lbpriu2_texture_analysis(cluster, imGrey))
-
-	#Training.cluster_texture(im, clusters, cluster_textures)
-	clusters = Classification.cluster_texture_classification(cluster_textures, clusters)
-
-
 
 # ============================================================== COMPUTATION
-# get the total number of eggs!
+# Get the total number of eggs!
+# Once the amount of eggs and clusters might be changed, we must to re-calculate their area.
+# We use it to compute how many eggs fits in a cluster.
 
+areas_egg = []
+areas_clusters = []
+
+for i in range(len(eggs)):
+	areas_egg.append(detect.get_object_area(eggs[i], bimage))
+
+for i in range(len(clusters)):
+	areas_clusters.append(detect.get_object_area(clusters[i], bimage))
+
+
+# Estimation of the mean area of the eggs in this sample.
 eggs_size_avg = 0
 total_eggs = 0
 
 if len(eggs) > 0:
 	total_eggs = len(eggs)
-	for egg in eggs:
-		eggs_size_avg += egg['lenght']
+
+	for egg in areas_egg:
+		eggs_size_avg += len(egg)
 
 	eggs_size_avg /= total_eggs
 
 else:
-	eggs_size_avg = 40
+	eggs_size_avg = 100
+
+if eggs_size_avg < 100:
+	eggs_size_avg = 100
 
 
-for cluster in clusters:
-	total_eggs += np.ceil(float(cluster['lenght']) / float(eggs_size_avg))
+# Estimating how many eggs fits in each cluster...
+for cluster in areas_clusters:
+	total_eggs += np.round(float(len(cluster)) / float(eggs_size_avg))
 
 
 print(IO.json_packing_success(int(total_eggs)))

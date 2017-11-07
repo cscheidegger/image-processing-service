@@ -26,10 +26,10 @@ def border_lenght(bimage, objects, radius):
 
 	for i in range(len(objects)):
 		bimage = cv2.putText(img=bimage, text=str(idx), org=(objects[i]['pixels'][0, 1], objects[i]['pixels'][0, 0]), fontFace=3, fontScale=0.3, color=(255), thickness=1)
-		IO.save_data(data=np.array([objects[i]['lenght'] / radius, objects[i]['lenght']]).reshape(1, -1), fpath="data/sz.dat", fmt='%.5f')
+		IO.save_data(data=np.array([objects[i]['lenght'] / radius, objects[i]['lenght']]).reshape(1, -1), fpath="/src/data/sz.dat", fmt='%.5f')
 		idx += 1
 
-	io.imsave("/home/joaoherrera/Desktop/out2.jpg", bimage)
+	io.imsave("/home/border_lenght.jpg", bimage)
 
 
 # extract border shape
@@ -41,10 +41,10 @@ def border_shape(bimage, objects, shapes, filename):
 
 	for i in range(len(shapes)):
 		bimage = cv2.putText(img=bimage, text=str(idx), org=(objects[i]['pixels'][0, 1], objects[i]['pixels'][0, 0]), fontFace=3, fontScale=0.3, color=(255), thickness=1)
-		IO.save_data(data=np.array(shapes[i]).reshape(1, -1), fpath="data/"+str(filename), fmt='%.5f', mode='ab')
+		IO.save_data(data=np.array(shapes[i]).reshape(1, -1), fpath="/src/data/"+str(filename), fmt='%.5f', mode='ab')
 		idx += 1
 
-	io.imsave("/home/joaoherrera/Desktop/out2.jpg", bimage)
+	io.imsave("/home/bordershape.jpg", bimage)
 
 
 # extract object color
@@ -56,10 +56,10 @@ def object_color(im, objects, colors, isEgg):
 	imout = ""
 	
 	if isEgg == True:
-		path = "data/cl.dat"
+		path = "/src/data/cl.dat"
 		imout = "egg"
 	else:
-		path = "data/clcls.dat"
+		path = "/src/data/clcls.dat"
 		imout = "cluster"
 
 	for i in range(len(objects)):
@@ -67,7 +67,7 @@ def object_color(im, objects, colors, isEgg):
 		IO.save_data(data=np.array(colors[i]).reshape(1, -1), fpath=path, fmt='%.5f', mode='ab')
 		idx += 1
 
-	io.imsave("/home/joaoherrera/Desktop/"+ imout +".jpg", im)
+	io.imsave("/home/"+ imout +".jpg", im)
 
 
 # extract cluster textures
@@ -78,7 +78,7 @@ def cluster_texture(im, clusters, textures):
 
 	for i in range(len(clusters)):
 		im = cv2.putText(img=im, text=str(idx), org=(clusters[i]['pixels'][0, 1], clusters[i]['pixels'][0, 0]), fontFace=3, fontScale=0.3, color=(255), thickness=1)
-		IO.save_data(data=np.array(textures[i]).reshape(1, -1), fpath="data/tx.dat", fmt='%.0f', mode='ab')
+		IO.save_data(data=np.array(textures[i]).reshape(1, -1), fpath="/src/data/tx.dat", fmt='%.0f', mode='ab')
 		idx += 1
 
-	io.imsave("/home/joaoherrera/Desktop/out2.jpg", im)
+	io.imsave("/home/clustertexture.jpg", im)

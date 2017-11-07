@@ -67,7 +67,7 @@ function processImageJob(job, done) {
     return new Promise((resolve, reject) => {
       execFile(
         "python",
-        ["/src/Application.py", imagePath],
+        ["/src/scripts/Application.py", imagePath],
         (err, stdout, stderr) => {
           if (err) reject(err);
           else {

@@ -11,6 +11,8 @@
 '''
 
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.gaussian_process import GaussianProcessClassifier
+from sklearn.gaussian_process.kernels import RBF
 from sklearn import svm
 from sklearn.neighbors import KNeighborsClassifier
 import IO
@@ -18,12 +20,13 @@ import numpy as np
 
 
 # default path
-datapath = "data/"
+datapath = "/src/data/"
 
 # ~~ CLASSIFIERS ~~
 lda = LDA()
-svm = svm.SVC(kernel='linear')
+svm = svm.SVC(kernel='rbf')
 knn = KNeighborsClassifier()
+gaussian = GaussianProcessClassifier(1.0 * RBF(1.0))
 
 # Classificate borders according to its lenght
 # objects: list of borders coordinates
@@ -33,13 +36,16 @@ def border_lenght_classification(objects, radius):
 
 	for i in range(len(objects)):
 		ratio = objects[i]['lenght'] / radius
-
+		
 		if ratio > 0.19 and ratio < 0.31:
 			eggs.append(objects[i])
 
 		elif ratio >= 0.31 and ratio < 0.80:
 			clusters.append(objects[i])
-
+	
+	print("Lenght analysis: " + str(len(eggs)) + " eggs.")
+	print("Lenght analysis: " + str(len(clusters)) + " clusters.")
+	
 	return eggs, clusters
 
 
@@ -53,12 +59,12 @@ def border_shape_classification(shapes, eggs, filename):
 	x_train = knowledge[:, :-1]
 	y_train = knowledge[:, -1:]
 
-	svm.fit(x_train, y_train)
+	gaussian.fit(x_train, y_train)
 
 	reggs = []
 
 	for i in range(len(shapes)):
-		predict = svm.predict(np.array(shapes[i]).reshape(1, -1))[0]
+		predict = gaussian.predict(np.array(shapes[i]).reshape(1, -1))[0]
 
 		if predict == 0:
 			reggs.append(eggs[i])
