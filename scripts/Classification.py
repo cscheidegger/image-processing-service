@@ -2,11 +2,11 @@
 
 '''
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Clasification.py							  #
-# Author: João Herrera		Date: 18 ago, 2017			  #
-#									  #
+# Clasification.py							  							  #
+# Author: João Herrera		Date: 18 ago, 2017			  				  #
+#									  									  #
 # These methods are used to perform some classification algorithms like   #
-# LDA or any other...							  #
+# LDA or any other...							  						  #
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 '''
 
