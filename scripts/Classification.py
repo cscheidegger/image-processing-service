@@ -2,11 +2,11 @@
 
 '''
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Clasification.py														  #
-# Author: João Herrera		Date: 18 ago, 2017							  #
-#																		  #
+# Clasification.py							  #
+# Author: João Herrera		Date: 18 ago, 2017			  #
+#									  #
 # These methods are used to perform some classification algorithms like   #
-# LDA or any other...													  #
+# LDA or any other...							  #
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 '''
 
@@ -37,10 +37,10 @@ def border_lenght_classification(objects, radius):
 	for i in range(len(objects)):
 		ratio = objects[i]['lenght'] / radius
 		
-		if ratio > 0.19 and ratio < 0.31:
+		if ratio > 0.19 and ratio < 0.30:
 			eggs.append(objects[i])
 
-		elif ratio >= 0.31 and ratio < 0.80:
+		elif ratio >= 0.30: #and ratio < 0.80:
 			clusters.append(objects[i])
 	
 	print("Lenght analysis: " + str(len(eggs)) + " eggs.")
