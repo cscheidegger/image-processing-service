@@ -76,6 +76,10 @@ for att in range(15):
 		break
 
 
+# reducing contrast between central circle and background...
+im = detect.remove_central_circle(im, params)
+
+
 # crop image into a feasible region
 im = Utils.crop_image(im, params)
 gsimage = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
@@ -92,7 +96,7 @@ print("Performing segmentation...")
 
 
 # detect borders using canny
-cbimage = feature.canny(gsimage, sigma=2)
+cbimage = feature.canny(gsimage, sigma=3)
 bimage = morphology.binary_dilation(cbimage)
 bimage = img_as_ubyte(bimage) # converting image format to unsigned byte
 

@@ -38,17 +38,62 @@ def detect_circle_mark(image):
 	gsrows, gscols = gsimage.shape
 
 	for param in model.params:
-		if param < 0: #or (param > gsrows or param > gscols):
+		if param < 0 or (param > gsrows or param > gscols):
 			return None
 
 
 	rr, cc = draw.circle_perimeter(int(model.params[0]), int(model.params[1]), int(model.params[2]), shape=image.shape)
 	gsimage[rr, cc] = 0
 
-	#io.imsave("/home/joaoherrera/Desktop/outw.jpg", gsimage)
 
 	return model.params # center X, center Y, radius
 
+
+
+# There are cases that a cluster might be on the circle pixels.
+# To get only the ROI of these clusters, we need to reduce the contrast between the circle pixels and the background
+# image: RGB image
+# params: center coordinates and radius of circle
+def remove_central_circle(image, params):
+	gsimage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+	# creating mask...
+	# in this mask we gonna draw the central circle, dilate it and replace its pixels by neighbors values of original sample.
+	mask = np.zeros_like(gsimage)
+
+	cv2.circle(mask, (int(params[1]), int(params[0])), int(params[2]), (255, 255, 255))
+	mask = morphology.binary_dilation(mask, selem=morphology.selem.disk(18))
+
+	# get pixels
+	coords = np.c_[np.where(mask > 0)]
+
+	# apply a filter to remove/reduce the contrast between circle and background
+	ksize = 21 # kernel size
+
+
+	# get all the pixels of the circle and compute the mean value of its neighbors
+	for pair in coords:
+		x = pair[0]
+		y = pair[1]
+
+		meanpx = 0
+		cntrpx = 1
+		value = gsimage[x, y]
+
+		for i in range(-ksize // 2, ksize // 2):
+			for j in range(-ksize // 2, ksize // 2):
+
+				pxvalue = gsimage[x + i, y + j]
+
+				if pxvalue > value:
+					meanpx += pxvalue
+					cntrpx += 1
+
+		meanpx = meanpx // cntrpx
+		image[x, y] = (meanpx, meanpx, meanpx)
+
+
+	return image
 
 
 
