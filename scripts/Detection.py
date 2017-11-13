@@ -97,6 +97,76 @@ def remove_central_circle(image, params):
 
 
 
+# This method reduces the contrast between the lines located at the border of the palette and the background
+# image: RGB image
+def remove_border_lines(image):
+
+	# converting image to grayscale
+	gsimage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+	# canny segmentation
+	cyimage = feature.canny(gsimage, sigma=3)
+	cyimage = morphology.binary_dilation(cyimage, selem=morphology.disk(3))
+	cyimage = img_as_ubyte(cyimage) # converting image format to unsigned byte
+
+	# computing hough lines...
+	hlines = cv2.HoughLinesP(cyimage, 1, np.pi/500, 50, 100, 100)
+	
+	lines = []
+	binary = np.zeros_like(gsimage)
+
+	for line in hlines:
+		line = line[0]
+		cv2.line(binary, (line[0], line[1]), (line[2], line[3]), (255,255,255), 3)
+
+
+	binary = morphology.binary_dilation(binary, selem=morphology.selem.disk(18))
+	rows, cols = binary.shape[:2]
+
+	# getting coordinates of nonzero values
+	coords = np.column_stack(np.nonzero(binary))
+
+	ksize = 27 # kernel size
+	for pair in coords:
+		x = pair[0]
+		y = pair[1]
+
+		meanpx = 0
+		cntrpx = 1
+		value = gsimage[x, y]
+
+		# applying the median filter...
+		for i in range(-ksize // 2, ksize // 2):
+			for j in range(-ksize // 2, ksize // 2):
+
+				xx = x + i
+				yy = y + j
+
+				if xx > rows - 1:
+					xx = rows - 1
+
+				elif xx < 0:
+					xx = 0
+
+				if yy > cols - 1:
+					yy = cols - 1
+
+				elif yy < 0:
+					yy = 0
+
+				pxvalue = gsimage[xx, yy]
+
+				if pxvalue > value:
+					meanpx += pxvalue
+					cntrpx += 1
+
+		meanpx = meanpx // cntrpx
+		image[x, y] = (meanpx, meanpx, meanpx) # get mean values...
+
+	return image
+
+
+
 # Detect the contour of all objects in the image
 # bimage: binary image
 def object_detection(bimage):
@@ -155,7 +225,7 @@ def object_detection(bimage):
 
 
 
-# Created for get the best option of pixel which pass across the points of line equation.
+# Created to get the best option of pixel which pass across the points of line equation.
 def _second_point_line_eq(ref, points):
 	candidates = []
 	maxdist = 1
@@ -186,6 +256,7 @@ def _second_point_line_eq(ref, points):
 		near_id +=1
 
 	return p2
+
 
 
 # Detects shape features of an object over an image

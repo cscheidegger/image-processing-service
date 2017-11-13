@@ -82,6 +82,9 @@ im = detect.remove_central_circle(im, params)
 
 # crop image into a feasible region
 im = Utils.crop_image(im, params)
+
+# reducing contrast between the lines at the border of the palette and the background!
+im = detect.remove_border_lines(im)
 gsimage = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
 
 
