@@ -378,7 +378,33 @@ def shape_detection(egg):
 
 
 	return [mxdist, dist]
+
+
 	
+# Giving a try to close gaps in the border of clusters
+# bimage: binary image
+def closing_gaps(bimage):
+
+	# dilation followed by erosion 7x
+	kernel = np.ones((3,3),np.uint8)
+	dilation = cv2.dilate(bimage, kernel, iterations = 7)
+	bimage = cv2.erode(dilation, kernel, iterations = 7)
+
+	# closing all object
+	bimage = binary_fill_holes(bimage)
+
+    # get the contour
+	cimage = np.zeros_like(bimage)
+	im, contours, hierarchy = cv2.findContours(img_as_ubyte(bimage), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+
+	for contour in contours:
+		contour = contour.reshape((contour.shape[0], contour.shape[2]))
+		cimage[contour[:, 1], contour[:, 0]] = 255
+
+	cimage = morphology.binary_dilation(cimage)
+
+	return img_as_ubyte(cimage)
+
 
 
 # Return the pixels inside a set of border coordinates

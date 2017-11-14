@@ -100,9 +100,8 @@ print("Performing segmentation...")
 
 # detect borders using canny
 cbimage = feature.canny(gsimage, sigma=3)
-bimage = morphology.binary_dilation(cbimage)
-bimage = img_as_ubyte(bimage) # converting image format to unsigned byte
-
+bimage = img_as_ubyte(cbimage) # converting image format to unsigned byte
+bimage = detect.closing_gaps(bimage) # closing gaps...
 
 
 # extracting the features...
