@@ -103,6 +103,9 @@ def remove_border_lines(image):
 	# computing hough lines...
 	hlines = cv2.HoughLinesP(cyimage, 1, np.pi/500, 50, 100, 100)
 	
+	if hlines == None:
+		return image
+
 	lines = []
 	binary = np.zeros_like(gsimage)
 
