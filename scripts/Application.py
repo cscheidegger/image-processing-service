@@ -32,7 +32,7 @@ IO.set_outputs(im)
 
 # Check if the palette has a defect. Currently there are 6 implementations of defects analysis:
 # low brightness, missing borders, out of focus, shadows and water on the surface. Some of them are detected using deep learning algorithm.
-if Defects.isBlurred(im) < 17.0:
+if Defects.isBlurred(im) < 15.0:
 	print(IO.json_packing_error('ERR_001'))
 	exit()
 
@@ -76,12 +76,15 @@ for att in range(15):
 		break
 
 
+# getting a copy of the original image
+imcpy = im.copy()
+
 # reducing contrast between central circle and background...
 im = detect.remove_central_circle(im, params)
 
-
-# crop image into a feasible region
+# crop both original and edited versions to a workable region.
 im = Utils.crop_image(im, params)
+imcpy = Utils.crop_image(imcpy, params)
 
 # reducing contrast between the lines at the border of the palette and the background!
 im = detect.remove_border_lines(im)
@@ -145,8 +148,8 @@ print("\nPerforming color detection...")
 areas_egg = []
 areas_clusters = []
 
-imHSV = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)
-imLAB = cv2.cvtColor(im, cv2.COLOR_BGR2LAB)
+imHSV = cv2.cvtColor(imcpy, cv2.COLOR_BGR2HSV)
+imLAB = cv2.cvtColor(imcpy, cv2.COLOR_BGR2LAB)
 
 for i in range(len(eggs)):
 	areas_egg.append(detect.get_object_area(eggs[i], bimage))
@@ -155,8 +158,8 @@ for i in range(len(clusters)):
 	areas_clusters.append(detect.get_object_area(clusters[i], bimage))
 
 
-ecolors = detect.get_object_color(areas_egg, im, imHSV, imLAB)
-ccolors = detect.get_object_color(areas_clusters, im, imHSV, imLAB)
+ecolors = detect.get_object_color(areas_egg, imcpy, imHSV, imLAB)
+ccolors = detect.get_object_color(areas_clusters, imcpy, imHSV, imLAB)
 
 #Training.object_color(im, eggs, ecolors, True)
 #Training.object_color(im, clusters, ccolors, False)

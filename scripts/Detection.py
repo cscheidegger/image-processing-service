@@ -76,20 +76,11 @@ def remove_central_circle(image, params):
 		x = pair[0]
 		y = pair[1]
 
-		meanpx = 0
-		cntrpx = 1
-		value = gsimage[x, y]
-
-		for i in range(-ksize // 2, ksize // 2):
-			for j in range(-ksize // 2, ksize // 2):
-
-				pxvalue = gsimage[x + i, y + j]
-
-				if pxvalue > value:
-					meanpx += pxvalue
-					cntrpx += 1
-
-		meanpx = meanpx // cntrpx
+		meanpx = gsimage[x - ksize // 2 : x + ksize // 2, y - ksize // 2 : y + ksize // 2]
+		meanpx = meanpx[meanpx > gsimage[x, y]] #meanpx = meanpx[(meanpx[:,:,0] > image[x, y, 0]) & (meanpx[:,:,1] > image[x, y, 1]) & (meanpx[:,:,2] > image[x, y, 2])]
+		cntrpx = len(meanpx)
+		meanpx = np.sum(meanpx)
+		meanpx = meanpx // (cntrpx + 1)
 		image[x, y] = (meanpx, meanpx, meanpx)
 
 
@@ -135,33 +126,28 @@ def remove_border_lines(image):
 		cntrpx = 1
 		value = gsimage[x, y]
 
-		# applying the median filter...
-		for i in range(-ksize // 2, ksize // 2):
-			for j in range(-ksize // 2, ksize // 2):
+		xx = ksize // 2
+		yy = ksize // 2
 
-				xx = x + i
-				yy = y + j
+		if (x + ksize // 2) > rows - 1:
+			xx = rows - 1
 
-				if xx > rows - 1:
-					xx = rows - 1
+		elif (x - ksize // 2) < 0:
+			xx = 0
 
-				elif xx < 0:
-					xx = 0
+		if (y + ksize // 2) > cols - 1:
+			yy = cols - 1
 
-				if yy > cols - 1:
-					yy = cols - 1
+		elif (y - ksize // 2) < 0:
+			yy = 0
 
-				elif yy < 0:
-					yy = 0
 
-				pxvalue = gsimage[xx, yy]
-
-				if pxvalue > value:
-					meanpx += pxvalue
-					cntrpx += 1
-
-		meanpx = meanpx // cntrpx
-		image[x, y] = (meanpx, meanpx, meanpx) # get mean values...
+		meanpx = gsimage[x - xx : x + xx, y - yy : y + yy]
+		meanpx = meanpx[meanpx > gsimage[x, y]] 
+		cntrpx = len(meanpx)
+		meanpx = np.sum(meanpx)
+		meanpx = meanpx // (cntrpx + 1)
+		image[x, y] = (meanpx, meanpx, meanpx)
 
 	return image
 
@@ -387,8 +373,8 @@ def closing_gaps(bimage):
 
 	# dilation followed by erosion 7x
 	kernel = np.ones((3,3),np.uint8)
-	dilation = cv2.dilate(bimage, kernel, iterations = 7)
-	bimage = cv2.erode(dilation, kernel, iterations = 7)
+	dilation = cv2.dilate(bimage, kernel, iterations = 10)
+	bimage = cv2.erode(dilation, kernel, iterations = 10)
 
 	# closing all object
 	bimage = binary_fill_holes(bimage)
