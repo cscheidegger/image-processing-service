@@ -129,16 +129,16 @@ def remove_border_lines(image):
 		xx = ksize // 2
 		yy = ksize // 2
 
-		if (x + ksize // 2) > rows - 1:
+		if (x + xx) > rows - 1:
 			xx = rows - 1
 
-		elif (x - ksize // 2) < 0:
+		elif (x - xx) < 0:
 			xx = 0
 
-		if (y + ksize // 2) > cols - 1:
+		if (y + yy) > cols - 1:
 			yy = cols - 1
 
-		elif (y - ksize // 2) < 0:
+		elif (y - yy) < 0:
 			yy = 0
 
 
