@@ -13,14 +13,14 @@ import Classification
 import types  
 import IO
 import Defects
-
+import sys
 
 
 print("Process started")
 
 # image of palette
-imname = '06.4SEM.CENC.INTRA.SONY.jpg'
-im = cv2.imread("/src/samples/" + imname, 1)
+imname = sys.argv[1]
+im = cv2.imread(imname, 1)
 
 im = Utils.adjust_position(im)
 im = Utils.adjust_resolution(im)
@@ -32,7 +32,7 @@ IO.set_outputs(im)
 
 # Check if the palette has a defect. Currently there are 6 implementations of defects analysis:
 # low brightness, missing borders, out of focus, shadows and water on the surface. Some of them are detected using deep learning algorithm.
-if Defects.isBlurred(im) < 15.0:
+if Defects.isBlurred(im) < 10.0:
 	print(IO.json_packing_error('ERR_001'))
 	exit()
 
