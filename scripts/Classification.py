@@ -37,10 +37,10 @@ def border_lenght_classification(objects, radius):
 	for i in range(len(objects)):
 		ratio = objects[i]['lenght'] / radius
 		
-		if ratio > 0.19 and ratio < 0.30:
+		if ratio > 0.19 and ratio < 0.33:
 			eggs.append(objects[i])
 
-		elif ratio >= 0.30: #and ratio < 0.80:
+		elif ratio >= 0.33: #and ratio < 0.80:
 			clusters.append(objects[i])
 	
 	print("Lenght analysis: " + str(len(eggs)) + " eggs.")
@@ -91,13 +91,13 @@ def object_color_classification(colors, objects, isEgg):
 	x_train = knowledge[:, :-1]
 	y_train = knowledge[:, -1:]
 
-	lda.fit(x_train, y_train)
+	gaussian.fit(x_train, y_train)
 
 	robjects = []
 
 	if colors != None:
 		for i in range(len(colors)):
-			predict = lda.predict(np.array(colors[i]).reshape(1, -1))[0]
+			predict = gaussian.predict(np.array(colors[i]).reshape(1, -1))[0]
 
 			#print predict
 			if predict == 0:
