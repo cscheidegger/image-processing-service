@@ -65,9 +65,9 @@ for att in range(15):
 	params = detect.detect_circle_mark(im)
 
 	if type(params) == type(None):
-		print(IO.json_packing_error('ERR_003'))
 		
 		if att == 14:
+			print(IO.json_packing_error('ERR_003'))
 			exit()
 		else:
 			continue
@@ -212,5 +212,3 @@ for cluster in areas_clusters:
 
 
 print(IO.json_packing_success(int(total_eggs)))
-
-#IO._write_results_on_machine(bimage, eggs, clusters, imname)

@@ -98,24 +98,3 @@ def get_error_description(errcode):
 	idx = np.where(code == errcode)[0]
 
 	return str(description[idx][0])
-
-
-
-# Show the classification results in an image: **** Used for tests only!!! ****
-# bimage: binary image
-# eggs: list of coordinates
-# clusters: list of coordinates
-#imname
-def _write_results_on_machine(bimage, eggs, clusters, imname):
-	bkimage = img_as_ubyte(np.zeros_like(bimage))
-	rows, cols = bkimage.shape
-
-	for egg in eggs:
-		for pix in egg['pixels']:
-			bkimage[pix[0], pix[1]] = 255
-
-	for cluster in clusters:
-		for pix in cluster['pixels']:
-			bkimage[pix[0], pix[1]] = 255
-
-	io.imsave("/home/joaoherrera/Desktop/" + imname[:-4] + "_out.jpg", bkimage)
