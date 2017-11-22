@@ -1,15 +1,5 @@
 # -*- coding: utf-8 -*-
 
-'''
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Clasification.py							  							  #
-# Author: João Herrera		Date: 18 ago, 2017			  				  #
-#									  									  #
-# These methods are used to perform some classification algorithms like   #
-# LDA or any other...							  						  #
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-'''
-
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.gaussian_process import GaussianProcessClassifier
 from sklearn.gaussian_process.kernels import RBF

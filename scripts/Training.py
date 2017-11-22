@@ -1,15 +1,5 @@
 # -*- coding: utf-8 -*-
 
-'''
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Training.py															  #
-# Author: João Herrera		Date: 21 jul, 2017							  #
-#																		  #
-# These methods are used to extract useful features from the input image  #
-# such border lenght, border shape and eggs' colors.					  #
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-'''
-
 import numpy as np
 import cv2
 import IO

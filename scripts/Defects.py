@@ -1,14 +1,5 @@
 # -*- coding: utf-8 -*-
 
-'''
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Defects.py														  	  #
-# Author: João Herrera		Date: 25 ago, 2017							  #
-#																		  #
-# These methods are used to detect some defects in the input image		  #
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-'''
-
 import numpy as np
 import cv2
 import IO

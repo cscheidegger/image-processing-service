@@ -4,6 +4,7 @@ import numpy as np
 import cv2
 from scipy import ndimage
 
+
 # Crop image acording to the center and radius of the palette
 # image: rgb image
 # circle_params: circle params

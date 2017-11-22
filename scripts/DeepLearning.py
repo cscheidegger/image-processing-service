@@ -1,13 +1,3 @@
-'''
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# DeepLearning.py														  #
-# Author: Joao Herrera		Date: 25 ago, 2017							  #
-#																		  #
-# This code is a modification of the original source from the keras FRCNN #
-# project which can be found at: https://github.com/yhenon/keras-frcnn	  #
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-'''
-
 from __future__ import division
 import os
 import cv2

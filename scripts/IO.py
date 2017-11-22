@@ -1,14 +1,5 @@
 # -*- coding: utf-8 -*-
 
-'''
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Training.py															  #
-# Author: João Herrera		Date: 21 jul, 2017							  #
-#																		  #
-# Methods for input and output requests									  #
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-'''
-
 import json
 import numpy as np
 from skimage import io, img_as_ubyte
