@@ -69,17 +69,29 @@ function processImageJob(job, done) {
         "python",
         ["/src/scripts/Application.py", imagePath],
         (err, stdout, stderr) => {
-          if (err) reject(err);
-          else {
-            // get resulting analysis json
-            const analysis = stdout.split("\n");
 
-            job.attrs.data.results = {
-              analysis: getAnalysisFromStdout(stdout)
-            };
-            job.save();
-            resolve();
+          let results = {};
+
+          if (err) {
+            results.error = {
+              message: "Erro no processamento de imagem."
+            }
+          } else {
+            results = getAnalysisFromStdout(stdout);
+            results.eggCount = results.eggs;
           }
+
+          job.attrs.data.results = results;
+          job.save();
+
+          const {webhookUrl} = job.attrs.data;
+          if (webhookUrl) {
+            request
+              .post(webhookUrl)
+              .form({results})
+              .on("complete", resolve)
+              .on("error", reject);
+          } else resolve();
         }
       );
     });

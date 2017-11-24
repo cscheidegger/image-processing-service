@@ -7,13 +7,16 @@
     "type": "git",
     "url": "git+https://github.com/aetrapp/image-processing-service.git"
   },
-  "contributors": [{
-    "name": "João Herrera",
-    "email": "joao.herrera@outlook.com"
-  },{
-    "name": "Vitor George",
-    "email": "vitor.george@aparabolica.com.br"
-  }],
+  "contributors": [
+    {
+      "name": "João Herrera",
+      "email": "joao.herrera@outlook.com"
+    },
+    {
+      "name": "Vitor George",
+      "email": "vitor.george@aparabolica.com.br"
+    }
+  ],
   "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/aetrapp/image-processing-service/issues"
