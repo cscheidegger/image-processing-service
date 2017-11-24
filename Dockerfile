@@ -46,4 +46,4 @@ RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
 # Run node server
-CMD ["node", "src/"] 
+CMD ["node", "server/"] 
