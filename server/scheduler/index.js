@@ -65,6 +65,7 @@ function processImageJob(job, done) {
 
   function analyse() {
     return new Promise((resolve, reject) => {
+      const analysisStartedAt = new Date();
       execFile(
         "python",
         ["/src/scripts/Application.py", imagePath],
@@ -80,6 +81,10 @@ function processImageJob(job, done) {
             results = getAnalysisFromStdout(stdout);
             results.eggCount = results.eggs;
           }
+
+          // set timestamps
+          results.analysisStartedAt = analysisStartedAt;
+          results.analysisFinishedAt = new Date();
 
           job.attrs.data.results = results;
           job.save();
