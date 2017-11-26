@@ -12,7 +12,19 @@ function getAnalysisFromStdout(stdout) {
   // get line before last
   var jsonString = allLines[allLines.length - 2];
 
-  return JSON.parse(jsonString);
+  var result;
+
+  try {
+    result = JSON.parse(jsonString);
+  } catch (e) {
+    result = {
+      error: {
+        message: "Não foi possível processar a imagem."
+      }
+    };
+  }
+
+  return result;
 }
 
 // Setup and start agenda
@@ -70,13 +82,12 @@ function processImageJob(job, done) {
         "python",
         ["/src/scripts/Application.py", imagePath],
         (err, stdout, stderr) => {
-
           let results = {};
 
           if (err) {
             results.error = {
-              message: "Erro no processamento de imagem."
-            }
+              message: "Não foi possível processar a imagem."
+            };
           } else {
             results = getAnalysisFromStdout(stdout);
             results.eggCount = results.eggs;
@@ -89,11 +100,11 @@ function processImageJob(job, done) {
           job.attrs.data.results = results;
           job.save();
 
-          const {webhookUrl} = job.attrs.data;
+          const { webhookUrl } = job.attrs.data;
           if (webhookUrl) {
             request
               .post(webhookUrl)
-              .form({results})
+              .form({ results })
               .on("complete", resolve)
               .on("error", reject);
           } else resolve();
