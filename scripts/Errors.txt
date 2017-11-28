@@ -5,3 +5,4 @@ ERR_004$A imagem apresenta sombras ou alguma outra coisa que possa atrapalhar o 
 ERR_005$Bordas da paleta não encontradas.
 ERR_006$Bordas da paleta e círculo central não encontrados.
 ERR_007$Foram encontradas marcas d'água na imagem.
+ERR_008$Imagem com baixa resolução.
