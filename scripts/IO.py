@@ -48,10 +48,8 @@ def save_data(data, fpath, fmt='%.3f', mode='a'):
 def json_packing_success(neggs):
 
 	output = {
-		'image':{
-			'eggCount': str(neggs),
-			'resolution': str(IM_RESOLUTION),
-		},
+        'eggCount': str(neggs),
+        'resolution': str(IM_RESOLUTION),
 		'ipsVersion': str(AEIP_CUR_VERSION)
 	}
 
@@ -73,9 +71,7 @@ def json_packing_error(errcode):
 			'code': str(errcode),
 			'message': str(erdesc),
 		},
-        'image':{
-            'resolution': str(IM_RESOLUTION),
-        },
+        'resolution': str(IM_RESOLUTION),
         'ipsVersion': str(AEIP_CUR_VERSION)
 	}
 
