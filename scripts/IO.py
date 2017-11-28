@@ -48,11 +48,13 @@ def save_data(data, fpath, fmt='%.3f', mode='a'):
 def json_packing_success(neggs):
 
 	output = {
-		'eggs': str(neggs),
-		'ercode': '',
-		'erdesc': '',
-		'imresolution': str(IM_RESOLUTION),
-		'ipversion': str(AEIP_CUR_VERSION)
+		'analysis':{
+			'eggs': str(neggs),
+			#'ercode': '',
+			#'erdesc': '',
+			'imresolution': str(IM_RESOLUTION),
+			'ipversion': str(AEIP_CUR_VERSION)
+		}
 	}
 
 	return json.dumps(output)
@@ -69,11 +71,13 @@ def json_packing_error(errcode):
 	erdesc = get_error_description(errcode)
 
 	output = {
-		'eggs': '',
-		'ercode': str(errcode),
-		'erdesc': str(erdesc),
-		'imresolution': str(IM_RESOLUTION),
-		'ipversion': str(AEIP_CUR_VERSION)
+		'error':{
+			#'eggs': '',
+			'ercode': str(errcode),
+			'erdesc': str(erdesc),
+			'imresolution': str(IM_RESOLUTION),
+			'ipversion': str(AEIP_CUR_VERSION)
+		}
 	}
 
 	return json.dumps(output)
