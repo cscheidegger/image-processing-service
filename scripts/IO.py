@@ -84,11 +84,12 @@ def json_packing_error(errcode):
 
 
 def get_error_description(errcode):
-	errors = open_data('/src/scripts/Errors.txt', delimiter='$', fmt='str')
+	errors = np.genfromtxt('/src/scripts/Errors.txt', delimiter='$', dtype=None)
 
 	code = errors[:, 0]
+
 	description = errors[:, 1]
 
-	idx = np.where(code == errcode)[0]
+	idx = np.where(code == errcode.encode('ASCII'))
 
-	return str(description[idx][0])
+	return description[idx][0].decode('utf-8')
