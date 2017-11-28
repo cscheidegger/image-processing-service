@@ -47,23 +47,17 @@ module.exports = function(options) {
 
 // Define process image job
 function processImageJob(job, done) {
-  const { imageUrl } = job.attrs.data;
-
-  // clear results if job was requeued
-  job.attrs.data.results = {};
+  const { image } = job.attrs.data;
 
   const imagePath = `/images/${job.attrs._id}`;
 
-  downloadImage()
-    .then(analyse)
-    .then(returnSucess)
-    .catch(returnError);
-
   function downloadImage() {
-    if (!imageUrl)
-      return job.fail("'process image job': missing 'imageUrl'").save();
+    const imageUrl = image && image.url;
 
     return new Promise((resolve, reject) => {
+      if (!imageUrl) 
+        return reject(new Error("process image job: missing 'image.url'"))
+                       
       const writeStream = fs.createWriteStream(imagePath);
       writeStream.on("error", reject);
 
@@ -86,18 +80,21 @@ function processImageJob(job, done) {
 
           if (err) {
             results.error = {
-              message: "Não foi possível processar a imagem."
+              code: "500",
+              name: err.name,
+              message: "Erro interno no servidor de processamento de imagens.",
+              internalMessage: err.message,
+              stack: err.stack
             };
           } else {
             results = getAnalysisFromStdout(stdout);
-            results.eggCount = results.eggs;
           }
 
           // set timestamps
           results.analysisStartedAt = analysisStartedAt;
           results.analysisFinishedAt = new Date();
 
-          job.attrs.data.results = results;
+          job.attrs.data = Object.assign(job.attrs.data, results);
           job.save();
 
           const { webhookUrl } = job.attrs.data;
@@ -114,9 +111,11 @@ function processImageJob(job, done) {
   }
 
   function returnError(err) {
-    job.attrs.data.results.err = {
+    job.attrs.data.error = {
+      code: "500",
       name: err.name,
-      message: err.message,
+      message: "Erro interno no servidor de processamento de imagens.",
+      internalMessage: err.message,
       stack: err.stack
     };
     job.fail(err).save();
@@ -125,4 +124,10 @@ function processImageJob(job, done) {
   function returnSucess() {
     done();
   }
+
+  downloadImage()
+    .then(analyse)
+    .then(returnSucess)
+    .catch(returnError);    
+
 }

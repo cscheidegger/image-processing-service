@@ -48,13 +48,11 @@ def save_data(data, fpath, fmt='%.3f', mode='a'):
 def json_packing_success(neggs):
 
 	output = {
-		'analysis':{
-			'eggs': str(neggs),
-			#'ercode': '',
-			#'erdesc': '',
-			'imresolution': str(IM_RESOLUTION),
-			'ipversion': str(AEIP_CUR_VERSION)
-		}
+		'image':{
+			'eggCount': str(neggs),
+			'resolution': str(IM_RESOLUTION),
+		},
+		'ipsVersion': str(AEIP_CUR_VERSION)
 	}
 
 	return json.dumps(output)
@@ -72,12 +70,13 @@ def json_packing_error(errcode):
 
 	output = {
 		'error':{
-			#'eggs': '',
-			'ercode': str(errcode),
-			'erdesc': str(erdesc),
-			'imresolution': str(IM_RESOLUTION),
-			'ipversion': str(AEIP_CUR_VERSION)
-		}
+			'code': str(errcode),
+			'message': str(erdesc),
+		},
+        'image':{
+            'resolution': str(IM_RESOLUTION),
+        },
+        'ipsVersion': str(AEIP_CUR_VERSION)
 	}
 
 	return json.dumps(output)
@@ -85,7 +84,7 @@ def json_packing_error(errcode):
 
 
 def get_error_description(errcode):
-	errors = open_data('Errors.txt', delimiter='$', fmt='str')
+	errors = open_data('/src/scripts/Errors.txt', delimiter='$', fmt='str')
 
 	code = errors[:, 0]
 	description = errors[:, 1]
