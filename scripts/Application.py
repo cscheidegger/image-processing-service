@@ -19,7 +19,7 @@ import sys
 print("Process started")
 
 # image of palette
-imname = "/src/samples/24.1SEM.CENC.INTRA.SONY.jpg"#sys.argv[1]
+imname = sys.argv[1]
 im = cv2.imread(imname, 1)
 
 im = Utils.adjust_position(im)
