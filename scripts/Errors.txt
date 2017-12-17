@@ -6,3 +6,5 @@ ERR_005$Bordas da paleta não encontradas.
 ERR_006$Bordas da paleta e círculo central não encontrados.
 ERR_007$Foram encontradas marcas d'água na imagem.
 ERR_008$Imagem com baixa resolução.
+ERR_009$Paleta não reconhecida.
+ERR_010$Enquadramento da paleta inadequado.

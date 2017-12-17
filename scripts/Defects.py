@@ -12,10 +12,12 @@ from scipy.ndimage.filters import gaussian_filter1d
 # return the blurry rate of a given image
 # im: RGB image
 def isBlurred(im):
-	blur = cv2.Laplacian(cv2.cvtColor(im, cv2.COLOR_BGR2GRAY), cv2.CV_64F).var()
+	rows, cols = im.shape[:2]
+	cbimage = feature.canny(cv2.cvtColor(im, cv2.COLOR_BGR2GRAY), sigma=3)
+	nonzero = np.count_nonzero(cbimage)
+	blur = nonzero * 1000 / (rows * cols)
 
 	print("Blur rate: " + str(blur))
-
 	return blur
 
 
@@ -67,39 +69,47 @@ def hasPalette(im):
 			circles = probs[circles]
 			circles = sorted(circles, key=lambda circle: circle[1], reverse=True)[0]
 
-		# check if there's atleat one palette and one probs
-		if len(palettes) > 0 and len(circles) > 0:
+		# validation by score
+		# The objects are validated if and only if its recognition score are higher than 98%
+		if float(palettes[1]) <= 0.98:
+			print(IO.json_packing_error('ERR_009'))
+			return 'error'
 			
-			# The objects are validated if and only if its recognition score are higher than 98%
-			if np.round(float(palettes[1])) <= 0.98:
-				print(IO.json_packing_error('ERR_005'))
-				return 'error'
-			
-			if np.round(float(circles[1])) <= 0.975:
-				print(IO.json_packing_error('ERR_003'))
-				return 'error'
-
-			coord = coordinates[np.where(probs[:, 1] == palettes[1])[0][0]]
-			im = im[coord[1] : coord[3], coord[0] : coord[2]] # crop image
-
-			#cv2.imwrite('/home/joaoherrera/Desktop/out.jpg',im)	
-			return im
-
-		elif len(palettes) == 0 and len(circles) == 0:
-			print(IO.json_packing_error('ERR_006'))
+		if float(circles[1]) <= 0.97:
+			print(IO.json_packing_error('ERR_009'))
 			return 'error'
 
+		# validation by position
+		# The objective is to check the position of the central circle.
+		# Once it is not centered the validation is rejected
+		height, width = im.shape[:2]
 
-		elif len(palettes) > 0:
-			print(IO.json_packing_error('ERR_003'))
+		coordC = coordinates[1]
+		coordCx1 = coordC[0]
+		coordCy1 = coordC[1]
+		coordCx2 = coordC[2]
+		coordCy2 = coordC[3]
+
+		disttop = coordCy1
+		distleft = coordCx1
+		distright = width - coordCx2
+		distdown = height - coordCy2
+
+		horck = np.abs(distleft - distright)
+		verck = np.abs(disttop - distdown)
+
+		if horck > np.min([distleft, distright]):
+			print(IO.json_packing_error('ERR_010'))
 			return 'error'
 
-		else:
-			print(IO.json_packing_error('ERR_005'))
+		if verck > np.min([disttop, distdown]) / 2:
+			print(IO.json_packing_error('ERR_010'))
 			return 'error'
+
+		return im
 
 	else:
-		print(IO.json_packing_error('ERR_006'))
+		print(IO.json_packing_error('ERR_009'))
 		return 'error'
 
 
