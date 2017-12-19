@@ -69,44 +69,50 @@ def hasPalette(im):
 			circles = probs[circles]
 			circles = sorted(circles, key=lambda circle: circle[1], reverse=True)[0]
 
-		# validation by score
-		# The objects are validated if and only if its recognition score are higher than 98%
-		if np.round(float(palettes[1])) <= 0.98:
-			print(IO.json_packing_error('ERR_009'))
-			return 'error'
+		if len(circles) > 0 and len(palettes) > 0:
+
+			# validation by score
+			# The objects are validated if and only if its recognition score are higher than 98%
+			if np.round(float(palettes[1])) <= 0.98:
+				print(IO.json_packing_error('ERR_009'))
+				return 'error'
+				
+			if np.round(float(circles[1])) <= 0.97:
+				print(IO.json_packing_error('ERR_009'))
+				return 'error'
+
+			# validation by position
+			# The objective is to check the position of the central circle.
+			# Once it is not centered the validation is rejected
+			height, width = im.shape[:2]
+
+			coordC = coordinates[1]
+			coordCx1 = coordC[0]
+			coordCy1 = coordC[1]
+			coordCx2 = coordC[2]
+			coordCy2 = coordC[3]
+
+			disttop = coordCy1
+			distleft = coordCx1
+			distright = width - coordCx2
+			distdown = height - coordCy2
+
+			horck = np.abs(distleft - distright)
+			verck = np.abs(disttop - distdown)
+
+			if horck > np.min([distleft, distright]):
+				print(IO.json_packing_error('ERR_010'))
+				return 'error'
+
+			if verck > np.min([disttop, distdown]) / 2:
+				print(IO.json_packing_error('ERR_010'))
+				return 'error'
+
+			return im
 			
-		if np.round(float(circles[1])) <= 0.97:
+		else:
 			print(IO.json_packing_error('ERR_009'))
 			return 'error'
-
-		# validation by position
-		# The objective is to check the position of the central circle.
-		# Once it is not centered the validation is rejected
-		height, width = im.shape[:2]
-
-		coordC = coordinates[1]
-		coordCx1 = coordC[0]
-		coordCy1 = coordC[1]
-		coordCx2 = coordC[2]
-		coordCy2 = coordC[3]
-
-		disttop = coordCy1
-		distleft = coordCx1
-		distright = width - coordCx2
-		distdown = height - coordCy2
-
-		horck = np.abs(distleft - distright)
-		verck = np.abs(disttop - distdown)
-
-		if horck > np.min([distleft, distright]):
-			print(IO.json_packing_error('ERR_010'))
-			return 'error'
-
-		if verck > np.min([disttop, distdown]) / 2:
-			print(IO.json_packing_error('ERR_010'))
-			return 'error'
-
-		return im
 
 	else:
 		print(IO.json_packing_error('ERR_009'))
