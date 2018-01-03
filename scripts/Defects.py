@@ -8,6 +8,7 @@ import DeepLearning
 import Classification
 
 from scipy.ndimage.filters import gaussian_filter1d
+from skimage import feature
 
 # return the blurry rate of a given image
 # im: RGB image
