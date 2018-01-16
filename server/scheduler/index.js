@@ -63,7 +63,11 @@ function processImageJob(job, done) {
 
       request
         .get(imageUrl)
-        .on("complete", resolve)
+        .on("response", res=>{
+          if (res.statusCode !== 200 || res.headers['content-type'].indexOf("image") !== 0) {
+            return reject(new Error("process image job: could not fetch image"))
+          } else resolve();
+        })
         .on("error", reject)
         .pipe(writeStream);
     });
