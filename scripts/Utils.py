@@ -59,7 +59,7 @@ def adjust_resolution(im):
 	rows, cols, _ = im.shape
 
 	if rows < 2000 and cols < 1000:
-		IO.json_packing_error('ERR_008')
+		print(IO.json_packing_error('ERR_008'))
 		exit()
 
 	'''
