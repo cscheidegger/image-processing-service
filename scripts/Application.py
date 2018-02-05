@@ -22,12 +22,12 @@ print("Process started")
 imname = sys.argv[1]
 im = cv2.imread(imname, 1)
 
-im = Utils.adjust_position(im)
-im = Utils.adjust_resolution(im)
-
-
 # Setting some relevant informations that are going to be returned to server through JSON dictionary...
 IO.set_outputs(im)
+
+
+im = Utils.adjust_position(im)
+im = Utils.adjust_resolution(im)
 
 
 # Check if the palette has a defect. Currently there are 6 implementations of defects analysis:
