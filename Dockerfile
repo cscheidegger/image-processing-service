@@ -36,7 +36,7 @@ RUN npm install -g yarn nodemon \
 
 # Download model
 RUN mkdir /model \
-  && wget -qO- -O /model/model_frcnn.zip https://www.dropbox.com/s/t8twhr9xdyzpgon/model_frcnn.zip \
+  && wget -qO- -O /model/model_frcnn.zip https://www.dropbox.com/s/4aaumoidekk8t8s/model_frcnn.zip \
   && unzip -o /model/model_frcnn.zip -d /model \
   && rm /model/model_frcnn.zip
 

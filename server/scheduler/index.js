@@ -28,7 +28,7 @@ function getAnalysisFromStdout(stdout) {
 }
 
 // Setup and start agenda
-module.exports = function(options) {
+module.exports = function (options) {
   const { mongoConnectionString } = options || {};
 
   if (!mongoConnectionString)
@@ -38,7 +38,7 @@ module.exports = function(options) {
 
   agenda.define("process image", processImageJob);
 
-  agenda.on("ready", function() {
+  agenda.on("ready", function () {
     agenda.start();
   });
 
@@ -55,15 +55,19 @@ function processImageJob(job, done) {
     const imageUrl = image && image.url;
 
     return new Promise((resolve, reject) => {
-      if (!imageUrl) 
+      if (!imageUrl)
         return reject(new Error("process image job: missing 'image.url'"))
-                       
+
       const writeStream = fs.createWriteStream(imagePath);
       writeStream.on("error", reject);
 
       request
         .get(imageUrl)
-        .on("complete", resolve)
+        .on("response", res => {
+          if (res.statusCode !== 200 || res.headers['content-type'].indexOf("image") !== 0) {
+            return reject(new Error("process image job: could not fetch image"))
+          } else resolve();
+        })
         .on("error", reject)
         .pipe(writeStream);
     });
@@ -76,19 +80,25 @@ function processImageJob(job, done) {
         "python",
         ["/src/scripts/Application.py", imagePath],
         (err, stdout, stderr) => {
-          let results = {};
+          let results = {
+            status: "valid"
+          };
 
-          if (err) {
+          // parse result and internal errors
+          if (!err) {
+            results = getAnalysisFromStdout(stdout);            
+          } else {
             results.error = {
               code: "500",
               name: err.name,
-              message: "Erro interno no servidor de processamento de imagens.",
+              message: "Interrupção inesperada da análise.",
               internalMessage: err.message,
               stack: err.stack
             };
-          } else {
-            results = getAnalysisFromStdout(stdout);
           }
+
+          // analysis error
+          results.status = results.error ? "invalid" : "valid";
 
           // set timestamps
           results.analysisStartedAt = analysisStartedAt;
@@ -128,6 +138,6 @@ function processImageJob(job, done) {
   downloadImage()
     .then(analyse)
     .then(returnSucess)
-    .catch(returnError);    
+    .catch(returnError);
 
 }
