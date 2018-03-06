@@ -3,7 +3,7 @@
 import cv2
 import numpy as np
 
-from skimage import io, feature, img_as_ubyte, morphology, transform, measure, draw, exposure, color
+from skimage import io, feature, img_as_ubyte, morphology, transform, measure, draw, exposure, color, segmentation
 from scipy.spatial import distance
 from scipy.ndimage.morphology import binary_fill_holes
 from sklearn.cluster import KMeans
@@ -159,8 +159,8 @@ def remove_border_lines(image):
 # Detect the contour of all objects in the image
 # bimage: binary image
 def object_detection(bimage):
-
-	x, y = np.where(bimage == 255)
+	imseg = img_as_ubyte(segmentation.find_boundaries(bimage, connectivity=1, mode='outer', background=1)) # segmented image
+	x, y = np.where(imseg == 255)
 	coord = np.c_[x, y]
 
 	objects = []
@@ -419,34 +419,68 @@ def get_object_area(object, bimage):
 
 
 # Return the true colors info of an object
-# Format: EggRGB + BackgroundRGB + Luminance(eggs) -
-def get_object_color(obcoord, imRGB, imHSV, imLAB):
+# Format: 
+# red + 
+# green + 
+# blue + 
+# red - green + 
+# red - blue +
+# green - red +
+# green - blue +
+# blue - red +
+# blue - green +
+# 2 x green - red - blue +
+# hue +
+# saturation +
+# value +
+# luminance +
+# a +
+# b
+def get_object_color(obcoord, imrgb, imhsv, imlab):
 
 	cfeat = [] # Color features
 
 	if len(obcoord) == 0:
 		return None
 
-	background_BGR_mean = np.mean(imRGB, axis=(1, 0)) 	# mean of whole picture
-	background_HSV_mean = np.mean(imHSV, axis=(1, 0))
-	background_LAB_mean = np.mean(imLAB, axis=(1, 0))
+	r = imrgb[:,:,2] / 255
+	g = imrgb[:,:,1] / 255
+	b = imrgb[:,:,0] / 255
+	rg = (r - g) / 255
+	rb = (r - b) / 255
+	gr = (g - r) / 255
+	gb = (g - b) / 255
+	br = (b - r) / 255
+	bg = (b - g) / 255
+	g2rb = (2 * g - r - b) / 255
+	h = imhsv[:,:,0] / 255
+	s = imhsv[:,:,1] / 255
+	v = imhsv[:,:,2] / 255
+	l = imlab[:,:,0] / 255
+	a = imlab[:,:,1] / 255
+	b = imlab[:,:,2] / 255
+
 
 	for id_ob in range(len(obcoord)):
 		colors = []
-		colors.append(np.abs(np.mean(imRGB[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0) - background_BGR_mean))
-		colors.append(np.abs(np.mean(imHSV[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0) - background_HSV_mean))
-		colors.append(np.abs(np.mean(imLAB[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0) - background_LAB_mean))
+
+		colors.append(np.abs(np.mean(r[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0)))
+		colors.append(np.abs(np.mean(g[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0)))
+		colors.append(np.abs(np.mean(b[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0)))
+		colors.append(np.abs(np.mean(rg[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0)))
+		colors.append(np.abs(np.mean(rb[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0)))
+		colors.append(np.abs(np.mean(gr[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0)))
+		colors.append(np.abs(np.mean(gb[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0)))
+		colors.append(np.abs(np.mean(br[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0)))
+		colors.append(np.abs(np.mean(bg[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0)))
+		colors.append(np.abs(np.mean(g2rb[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0)))
+		colors.append(np.abs(np.mean(h[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0)))
+		colors.append(np.abs(np.mean(s[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0)))
+		colors.append(np.abs(np.mean(v[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0)))
+		colors.append(np.abs(np.mean(l[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0)))
+		colors.append(np.abs(np.mean(a[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0)))
+		colors.append(np.abs(np.mean(b[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0)))
 
 		cfeat.append(np.array(colors).flatten())
-
+		
 	return cfeat
-	
-
-
-# get texture using through LBPriu2
-def lbpriu2_texture_analysis(area, imGray):
-
-	imLBP = feature.local_binary_pattern(imGray, 8, 1, 'uniform')
-	pixels = imLBP[area[:, 0], area[:, 1]]
-
-	return np.histogram(pixels, bins=9)[0]

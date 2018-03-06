@@ -7,7 +7,7 @@ from sklearn import svm
 from sklearn.neighbors import KNeighborsClassifier
 import IO
 import numpy as np
-
+import cv2
 
 # default path
 datapath = "/src/data/"
@@ -119,3 +119,49 @@ def cluster_texture_classification(textures, clusters):
 			rclusters.append(clusters[i])
 
 	return rclusters
+
+
+# Image segmentation based on pixel level color classification.
+# imrgb: RGB image
+def color_segmentation(imrgb):
+	width, height = imrgb.shape[:2]
+
+	imhsv = cv2.cvtColor(imrgb, cv2.COLOR_BGR2HSV)
+	imlab = cv2.cvtColor(imrgb, cv2.COLOR_BGR2LAB)
+
+	r = imrgb[:,:,2].reshape(1, -1) / 255
+	g = imrgb[:,:,1].reshape(1, -1) / 255
+	b = imrgb[:,:,0].reshape(1, -1) / 255
+	rg = (r - g) / 255
+	rb = (r - b) / 255
+	gr = (g - r) / 255
+	gb = (g - b) / 255
+	br = (b - r) / 255
+	bg = (b - g) / 255
+	g2rb = (2 * g - r - b) / 255
+	h = imhsv[:,:,0].reshape(1, -1) / 255
+	s = imhsv[:,:,1].reshape(1, -1) / 255
+	v = imhsv[:,:,2].reshape(1, -1) / 255
+	l = imlab[:,:,0].reshape(1, -1) / 255
+	a = imlab[:,:,1].reshape(1, -1) / 255
+	b = imlab[:,:,2].reshape(1, -1) / 255
+
+	colormat = np.concatenate((r,g,b,rg,rb,gr,gb,br,bg,g2rb,h,s,v,l,a,b), axis=0)
+	colormat = colormat.transpose()
+
+	data = IO.open_data(datapath +	str('clseg.dat'))
+	datx = data[:, :-1]
+	daty = data[:, -1:]
+
+	svm.fit(datx, daty)
+
+	res = np.zeros((1, width * height))
+
+	imrgb = imrgb.reshape(1, -1)
+	for i in range(width * height):
+		res[0, i] = np.int(svm.predict(colormat[i, :].reshape(1, -1)))
+
+	imrgb = imrgb.reshape(width, height, 3)
+	res = res.reshape(width, height)
+
+	return res
