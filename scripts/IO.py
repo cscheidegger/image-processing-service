@@ -5,7 +5,7 @@ import numpy as np
 from skimage import io, img_as_ubyte
 
 
-AEIP_CUR_VERSION = 1.0
+AEIP_CUR_VERSION = 1.3
 IM_RESOLUTION = ''
 
 
