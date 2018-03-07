@@ -124,9 +124,7 @@ for i in range(len(clusters)):
 	shapesc.append(detect.shape_detection(clusters[i]) / params[2])
 
 
-
 eggs = Classification.border_shape_classification(shapes, eggs, "sh.dat")
-
 
 
 # ============================================================== BORDER COLOR
