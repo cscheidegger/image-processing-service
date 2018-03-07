@@ -14,7 +14,7 @@ datapath = "/src/data/"
 
 # ~~ CLASSIFIERS ~~
 lda = LDA()
-svm = svm.SVC(kernel='rbf')
+svm = svm.SVC(kernel='linear')
 knn = KNeighborsClassifier()
 gaussian = GaussianProcessClassifier(1.0 * RBF(1.0))
 
@@ -26,16 +26,16 @@ def border_lenght_classification(objects, radius):
 
 	for i in range(len(objects)):
 		ratio = objects[i]['lenght'] / radius
-		
-		if ratio > 0.19 and ratio < 0.33:
+	
+		if ratio > 0.12 and ratio < 0.18:
 			eggs.append(objects[i])
 
-		elif ratio >= 0.33: #and ratio < 0.80:
+		elif ratio >= 0.18: # and ratio < 0.80:
 			clusters.append(objects[i])
-	
+
 	print("Lenght analysis: " + str(len(eggs)) + " eggs.")
 	print("Lenght analysis: " + str(len(clusters)) + " clusters.")
-	
+
 	return eggs, clusters
 
 

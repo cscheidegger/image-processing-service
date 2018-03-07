@@ -407,9 +407,7 @@ def get_object_area(object, bimage):
 	bcknim[bdpixels[:, 0], bdpixels[:, 1]] = 255
 
 	# Get the area of the object
-	#bimage = morphology.binary_dilation(bimage)
 	bcknim = binary_fill_holes(bcknim)
-	bcknim = morphology.binary_erosion(bcknim)
 	bcknim = img_as_ubyte(bcknim) # converting image format to unsigned byte
 	
 	arpixels = np.argwhere(bcknim == 255)
