@@ -79,15 +79,10 @@ for att in range(15):
 # getting a copy of the original image
 imcpy = im.copy()
 
-# reducing contrast between central circle and background...
-im = detect.remove_central_circle(im, params)
-
 # crop both original and edited versions to a workable region.
 im = Utils.crop_image(im, params)
 imcpy = Utils.crop_image(imcpy, params)
 
-# reducing contrast between the lines at the border of the palette and the background!
-im = detect.remove_border_lines(im)
 gsimage = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
 
 
@@ -101,11 +96,8 @@ if Defects.shadow_index(im) > 0.13:
 print("Performing segmentation...")
 
 
-# detect borders using canny
-cbimage = feature.canny(gsimage, sigma=3)
-bimage = img_as_ubyte(cbimage) # converting image format to unsigned byte
-bimage = detect.closing_gaps(bimage) # closing gaps...
-
+# detect borders using a classifier
+bimage = img_as_ubyte(Classification.color_segmentation(im))
 
 # extracting the features...
 # ============================================================== BORDER SIZE
@@ -132,11 +124,8 @@ for i in range(len(clusters)):
 	shapesc.append(detect.shape_detection(clusters[i]) / params[2])
 
 
-#Training.border_shape(bimage, eggs, shapes, "sh.dat")
-#Training.border_shape(bimage, clusters, shapesc, "shcls.dat")
 
 eggs = Classification.border_shape_classification(shapes, eggs, "sh.dat")
-clusters = Classification.border_shape_classification(shapesc, clusters, "shcls.dat")
 
 
 
@@ -160,9 +149,6 @@ for i in range(len(clusters)):
 
 ecolors = detect.get_object_color(areas_egg, imcpy, imHSV, imLAB)
 ccolors = detect.get_object_color(areas_clusters, imcpy, imHSV, imLAB)
-
-#Training.object_color(im, eggs, ecolors, True)
-#Training.object_color(im, clusters, ccolors, False)
 
 eggs = Classification.object_color_classification(ecolors, eggs, True)
 clusters = Classification.object_color_classification(ccolors, clusters, False)
@@ -191,19 +177,18 @@ for i in range(len(clusters)):
 eggs_size_avg = 0
 total_eggs = 0
 
-if len(eggs) > 0:
+if len(eggs) > 0:	
 	total_eggs = len(eggs)
 
-	for egg in areas_egg:
-		eggs_size_avg += len(egg)
+	areas_len = []
 
-	eggs_size_avg /= total_eggs
+	for i in range(len(areas_egg)):
+		areas_len.append(len(areas_egg[i]))
+
+	eggs_size_avg = np.median(areas_len)
 
 else:
-	eggs_size_avg = 100
-
-if eggs_size_avg < 100:
-	eggs_size_avg = 100
+	eggs_size_avg = 130
 
 
 # Estimating how many eggs fits in each cluster...
