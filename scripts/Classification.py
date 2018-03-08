@@ -26,16 +26,16 @@ def border_lenght_classification(objects, radius):
 
 	for i in range(len(objects)):
 		ratio = objects[i]['lenght'] / radius
-	
-		if ratio > 0.12 and ratio < 0.18:
+		
+		if ratio > 0.19 and ratio < 0.33:
 			eggs.append(objects[i])
 
-		elif ratio >= 0.18: # and ratio < 0.80:
+		elif ratio >= 0.33: #and ratio < 0.80:
 			clusters.append(objects[i])
-
+	
 	print("Lenght analysis: " + str(len(eggs)) + " eggs.")
 	print("Lenght analysis: " + str(len(clusters)) + " clusters.")
-
+	
 	return eggs, clusters
 
 
@@ -95,30 +95,6 @@ def object_color_classification(colors, objects, isEgg):
 
 	return robjects
 
-
-
-# Classification of clusters according to its texture
-# textures: array with textures histograms
-# clusters: array containing cluster objects
-def cluster_texture_classification(textures, clusters):
-	knowledge = IO.open_data(datapath +	"tx.dat")
-
-	x_train = knowledge[:, :-1]
-	y_train = knowledge[:, -1:]
-
-	lda.fit(x_train, y_train)
-
-	rclusters = []
-
-	for i in range(len(clusters)):
-		predict = lda.predict(np.array(textures[i]).reshape(1, -1))[0]
-
-		print(predict)
-		
-		if predict == 0:
-			rclusters.append(clusters[i])
-
-	return rclusters
 
 
 # Image segmentation based on pixel level color classification.

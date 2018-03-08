@@ -79,10 +79,15 @@ for att in range(15):
 # getting a copy of the original image
 imcpy = im.copy()
 
+# reducing contrast between central circle and background...
+im = detect.remove_central_circle(im, params)
+
 # crop both original and edited versions to a workable region.
 im = Utils.crop_image(im, params)
 imcpy = Utils.crop_image(imcpy, params)
 
+# reducing contrast between the lines at the border of the palette and the background!
+im = detect.remove_border_lines(im)
 gsimage = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
 
 
@@ -96,8 +101,11 @@ if Defects.shadow_index(im) > 0.13:
 print("Performing segmentation...")
 
 
-# detect borders using a classifier
-bimage = img_as_ubyte(Classification.color_segmentation(im))
+# detect borders using canny
+cbimage = feature.canny(gsimage, sigma=3)
+bimage = img_as_ubyte(cbimage) # converting image format to unsigned byte
+bimage = detect.closing_gaps(bimage) # closing gaps...
+
 
 # extracting the features...
 # ============================================================== BORDER SIZE
@@ -125,7 +133,7 @@ for i in range(len(clusters)):
 
 
 eggs = Classification.border_shape_classification(shapes, eggs, "sh.dat")
-
+clusters = Classification.border_shape_classification(shapesc, clusters, "shcls.dat")
 
 # ============================================================== BORDER COLOR
 # Get colors info of remaining objects...
@@ -175,19 +183,19 @@ for i in range(len(clusters)):
 eggs_size_avg = 0
 total_eggs = 0
 
-if len(eggs) > 0:	
+if len(eggs) > 0:
 	total_eggs = len(eggs)
 
-	areas_len = []
+	for egg in areas_egg:
+		eggs_size_avg += len(egg)
 
-	for i in range(len(areas_egg)):
-		areas_len.append(len(areas_egg[i]))
-
-	eggs_size_avg = np.median(areas_len)
+	eggs_size_avg /= total_eggs
 
 else:
-	eggs_size_avg = 130
+	eggs_size_avg = 100
 
+if eggs_size_avg < 100:
+	eggs_size_avg = 100
 
 # Estimating how many eggs fits in each cluster...
 for cluster in areas_clusters:
