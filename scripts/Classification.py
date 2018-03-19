@@ -8,6 +8,9 @@ from sklearn.neighbors import KNeighborsClassifier
 import IO
 import numpy as np
 import cv2
+import pickle
+import numpy as np
+import Detection as detect
 
 # default path
 datapath = "/src/data/"
@@ -18,24 +21,27 @@ svm = svm.SVC(kernel='linear')
 knn = KNeighborsClassifier()
 gaussian = GaussianProcessClassifier(1.0 * RBF(1.0))
 
-# Classificate borders according to its lenght
+
+# Classification by area
 # objects: list of borders coordinates
-def border_lenght_classification(objects, radius):
+# raidius: central circle radius
+# bimage: binary image
+def area_lenght_classification(objects, radius, bimage):
 	eggs = []
 	clusters = []
 
 	for i in range(len(objects)):
-		ratio = objects[i]['lenght'] / radius
+		area = len(detect.get_object_area(objects[i], bimage)) / radius
 		
-		if ratio > 0.19 and ratio < 0.33:
+		if area > 0.1 and area < 0.32:
 			eggs.append(objects[i])
 
-		elif ratio >= 0.33: #and ratio < 0.80:
+		elif area >= 0.32:
 			clusters.append(objects[i])
-	
+
 	print("Lenght analysis: " + str(len(eggs)) + " eggs.")
 	print("Lenght analysis: " + str(len(clusters)) + " clusters.")
-	
+
 	return eggs, clusters
 
 
@@ -125,19 +131,18 @@ def color_segmentation(imrgb):
 	colormat = np.concatenate((r,g,b,rg,rb,gr,gb,br,bg,g2rb,h,s,v,l,a,b), axis=0)
 	colormat = colormat.transpose()
 
+	'''
 	data = IO.open_data(datapath +	str('clseg.dat'))
 	datx = data[:, :-1]
 	daty = data[:, -1:]
 
+	#clf = GaussianProcessClassifier()
 	svm.fit(datx, daty)
+	'''
 
-	res = np.zeros((1, width * height))
+	svm = pickle.load(open(datapath + 'clseg.sav', 'rb'))
 
-	imrgb = imrgb.reshape(1, -1)
-	for i in range(width * height):
-		res[0, i] = np.int(svm.predict(colormat[i, :].reshape(1, -1)))
-
-	imrgb = imrgb.reshape(width, height, 3)
+	res = svm.predict(colormat)
 	res = res.reshape(width, height)
 
 	return res

@@ -50,117 +50,11 @@ def detect_circle_mark(image):
 
 
 
-# There are cases that a cluster might be on the circle pixels.
-# To get only the ROI of these clusters, we need to reduce the contrast between the circle pixels and the background
-# image: RGB image
-# params: center coordinates and radius of circle
-def remove_central_circle(image, params):
-	gsimage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-	# creating mask...
-	# in this mask we gonna draw the central circle, dilate it and replace its pixels by neighbors values of original sample.
-	mask = np.zeros_like(gsimage)
-
-	cv2.circle(mask, (int(params[1]), int(params[0])), int(params[2]), (255, 255, 255))
-	mask = morphology.binary_dilation(mask, selem=morphology.selem.disk(18))
-
-	# get pixels
-	coords = np.c_[np.where(mask > 0)]
-
-	# apply a filter to remove/reduce the contrast between circle and background
-	ksize = 21 # kernel size
-
-
-	# get all the pixels of the circle and compute the mean value of its neighbors
-	for pair in coords:
-		x = pair[0]
-		y = pair[1]
-
-		meanpx = gsimage[x - ksize // 2 : x + ksize // 2, y - ksize // 2 : y + ksize // 2]
-		meanpx = meanpx[meanpx > gsimage[x, y]] #meanpx = meanpx[(meanpx[:,:,0] > image[x, y, 0]) & (meanpx[:,:,1] > image[x, y, 1]) & (meanpx[:,:,2] > image[x, y, 2])]
-		cntrpx = len(meanpx)
-		meanpx = np.sum(meanpx)
-		meanpx = meanpx // (cntrpx + 1)
-		image[x, y] = (meanpx, meanpx, meanpx)
-
-
-	return image
-
-
-
-# This method reduces the contrast between the lines located at the border of the palette and the background
-# image: RGB image
-def remove_border_lines(image):
-
-	# converting image to grayscale
-	gsimage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-	# canny segmentation
-	cyimage = feature.canny(gsimage, sigma=3)
-	cyimage = morphology.binary_dilation(cyimage, selem=morphology.disk(3))
-	cyimage = img_as_ubyte(cyimage) # converting image format to unsigned byte
-
-	# computing hough lines...
-	hlines = cv2.HoughLinesP(cyimage, 1, np.pi/500, 50, 100, 100)
-	
-	if type(hlines) == type(None):
-		return image
-
-	lines = []
-	binary = np.zeros_like(gsimage)
-
-	for line in hlines:
-		line = line[0]
-		cv2.line(binary, (line[0], line[1]), (line[2], line[3]), (255,255,255), 3)
-
-
-	binary = morphology.binary_dilation(binary, selem=morphology.selem.disk(18))
-	rows, cols = binary.shape[:2]
-
-	# getting coordinates of nonzero values
-	coords = np.column_stack(np.nonzero(binary))
-
-	ksize = 27 # kernel size
-	for pair in coords:
-		x = pair[0]
-		y = pair[1]
-
-		meanpx = 0
-		cntrpx = 1
-		value = gsimage[x, y]
-
-		xx = ksize // 2
-		yy = ksize // 2
-
-		if (x + xx) > rows - 1:
-			xx = rows - 1
-
-		elif (x - xx) < 0:
-			xx = 0
-
-		if (y + yy) > cols - 1:
-			yy = cols - 1
-
-		elif (y - yy) < 0:
-			yy = 0
-
-
-		meanpx = gsimage[x - xx : x + xx, y - yy : y + yy]
-		meanpx = meanpx[meanpx > gsimage[x, y]] 
-		cntrpx = len(meanpx)
-		meanpx = np.sum(meanpx)
-		meanpx = meanpx // (cntrpx + 1)
-		image[x, y] = (meanpx, meanpx, meanpx)
-
-	return image
-
-
-
 # Detect the contour of all objects in the image
 # bimage: binary image
 def object_detection(bimage):
-	#imseg = img_as_ubyte(segmentation.find_boundaries(bimage, connectivity=1, mode='outer', background=1)) # segmented image
-	x, y = np.where(bimage == 255)
+	imseg = img_as_ubyte(segmentation.find_boundaries(bimage, connectivity=1, mode='outer', background=1)) # segmented image
+	x, y = np.where(imseg == 255)
 	coord = np.c_[x, y]
 
 	objects = []
@@ -369,32 +263,6 @@ def shape_detection(egg):
 	return [mxdist, dist]
 
 
-	
-# Giving a try to close gaps in the border of clusters
-# bimage: binary image
-def closing_gaps(bimage):
-
-	# dilation followed by erosion 7x
-	kernel = np.ones((3,3),np.uint8)
-	dilation = cv2.dilate(bimage, kernel, iterations = 10)
-	bimage = cv2.erode(dilation, kernel, iterations = 10)
-
-	# closing all object
-	bimage = binary_fill_holes(bimage)
-
-    # get the contour
-	cimage = np.zeros_like(bimage)
-	im, contours, hierarchy = cv2.findContours(img_as_ubyte(bimage), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-
-	for contour in contours:
-		contour = contour.reshape((contour.shape[0], contour.shape[2]))
-		cimage[contour[:, 1], contour[:, 0]] = 255
-
-	cimage = morphology.binary_dilation(cimage)
-
-	return img_as_ubyte(cimage)
-
-
 
 # Return the pixels inside a set of border coordinates
 # object: coordinates set of an object
@@ -409,7 +277,6 @@ def get_object_area(object, bimage):
 	# Get the area of the object
 	#bimage = morphology.binary_dilation(bimage)
 	bcknim = binary_fill_holes(bcknim)
-	bcknim = morphology.binary_erosion(bcknim)
 	bcknim = img_as_ubyte(bcknim) # converting image format to unsigned byte
 	
 	arpixels = np.argwhere(bcknim == 255)
