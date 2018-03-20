@@ -3,7 +3,7 @@ FROM continuumio/anaconda3
 WORKDIR /src
 
 # Install Anaconda dependencies
-RUN conda install -y opencv=3.2.0 keras=2.1.4 tensorflow \
+RUN conda install -y opencv keras=2.1.4 tensorflow=1.5.0 \
   && conda clean -a -y
 
 # Install APT dependencies 
