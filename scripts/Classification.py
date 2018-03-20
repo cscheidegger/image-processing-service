@@ -8,7 +8,7 @@ from sklearn.neighbors import KNeighborsClassifier
 import IO
 import numpy as np
 import cv2
-import pickle
+#import pickle
 import numpy as np
 import Detection as detect
 
