@@ -11,6 +11,11 @@ services:
       - /src/node_modules
       - .:/src
       - ./.data/images:/images
+    environment:        
+      NODE_CONFIG: |-
+          {
+            "mongoConnectionString": "mongodb://mongo/agenda"
+          }
   mongo:
     image: mongo
     volumes:

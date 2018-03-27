@@ -1,10 +1,10 @@
 const express = require("express");
 const scheduler = require("./scheduler");
 
-const mongoConnectionString = "mongodb://mongo/agenda";
+const config = require("config");
+const mongoConnectionString = config.get("mongoConnectionString");
 
 var app = express();
-app.set("mongoConnectionString", mongoConnectionString);
 app.use("/agenda", scheduler({ mongoConnectionString }));
 app.use("/", (req, res) => { return res.redirect("/agenda"); })
 
