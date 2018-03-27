@@ -6,7 +6,7 @@ services:
     links:
       - mongo
     ports:
-      - 3131:3030
+      - 3131:3131
     volumes:
       - /src/node_modules
       - .:/src

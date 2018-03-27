@@ -8,4 +8,4 @@ var app = express();
 app.use("/agenda", scheduler({ mongoConnectionString }));
 app.use("/", (req, res) => { return res.redirect("/agenda"); })
 
-app.listen(3030);
+app.listen(config.get("port"));
