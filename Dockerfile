@@ -1,13 +1,16 @@
-FROM continuumio/anaconda3
+FROM continuumio/miniconda3
 
 WORKDIR /src
 
 # Install Anaconda dependencies
-RUN conda install -y opencv keras=2.1.4 tensorflow=1.5.0 \
+RUN conda install -y scikit-image scikit-learn opencv keras=2.1.4 tensorflow=1.5.0 \
   && conda clean -a -y
 
 # Install APT dependencies 
 RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    gnupg \
+    dirmngr \
   && curl -sL https://deb.nodesource.com/setup_8.x | bash - \
   && apt-get install -y --no-install-recommends \
     libgtk2.0-dev \
