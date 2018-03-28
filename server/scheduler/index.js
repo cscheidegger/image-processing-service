@@ -35,6 +35,7 @@ module.exports = function (options) {
     throw new Error('Missing "mongoConnectionString" option.');
 
   var agenda = new Agenda({ db: { address: mongoConnectionString } });
+  agenda.defaultLockLifetime(120000);
 
   agenda.define("process image", processImageJob);
 
@@ -91,7 +92,7 @@ function processImageJob(job, done) {
             results.error = {
               code: "500",
               name: err.name,
-              message: "Interrupção inesperada da análise.",
+              message: "execução interrompida",
               internalMessage: err.message,
               stack: err.stack
             };
@@ -129,6 +130,7 @@ function processImageJob(job, done) {
       stack: err.stack
     };
     job.fail(err).save();
+    done(err);
   }
 
   function returnSucess() {
