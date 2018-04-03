@@ -3,6 +3,8 @@ const { execFile } = require("child_process");
 const request = require("request");
 const Agenda = require("agenda");
 const Agendash = require("agendash");
+const config = require("config");
+const imagesPath = config.get("imagesPath");
 
 // Helper function to analyse results from script
 function getAnalysisFromStdout(stdout) {
@@ -50,7 +52,7 @@ module.exports = function (options) {
 function processImageJob(job, done) {
   const { image } = job.attrs.data;
 
-  const imagePath = `/images/${job.attrs._id}`;
+  const imagePath = `${imagesPath}/${job.attrs._id}`;
 
   function downloadImage() {
     const imageUrl = image && image.url;
