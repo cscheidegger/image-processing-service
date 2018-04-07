@@ -2,10 +2,6 @@ FROM continuumio/miniconda3
 
 WORKDIR /src
 
-# Install Anaconda dependencies
-RUN conda install -y scikit-image scikit-learn opencv keras=2.1.4 tensorflow=1.5.0 \
-  && conda clean -a -y
-
 # Install APT dependencies 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
@@ -19,7 +15,7 @@ RUN apt-get update \
   && rm -rf /tmp/* /var/lib/apt/lists/*    
 
 # Install GOSU for stepping down from root
-ENV GOSU_VERSION 1.7
+ENV GOSU_VERSION 1.10
 RUN set -x \
   && wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture)" \
   && wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture).asc" \
@@ -42,6 +38,10 @@ RUN mkdir /model \
   && wget -qO- -O /model/model_frcnn.zip https://www.dropbox.com/s/4aaumoidekk8t8s/model_frcnn.zip \
   && unzip -o /model/model_frcnn.zip -d /model \
   && rm /model/model_frcnn.zip
+
+# Install Anaconda dependencies
+RUN conda install -y scikit-image scikit-learn opencv keras=2.1.4 tensorflow=1.5.0 \
+  && conda clean -a -y
 
 # Patch entrypoint
 COPY entrypoint.sh /entrypoint.sh
