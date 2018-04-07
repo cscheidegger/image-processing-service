@@ -80,7 +80,7 @@ def json_packing_error(errcode):
 
 
 def get_error_description(errcode):
-	errors = np.genfromtxt('/src/scripts/Errors.txt', delimiter='$', dtype=None)
+	errors = np.genfromtxt('scripts/Errors.txt', delimiter='$', dtype=None)
 
 	code = errors[:, 0]
 

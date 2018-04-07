@@ -13,7 +13,7 @@ import numpy as np
 import Detection as detect
 
 # default path
-datapath = "/src/data/"
+datapath = "data/"
 
 # ~~ CLASSIFIERS ~~
 lda = LDA()

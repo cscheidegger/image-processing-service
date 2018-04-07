@@ -15,7 +15,7 @@ from keras_frcnn import roi_helpers
 import keras_frcnn.resnet as nn
 
 sys.setrecursionlimit(40000)
-config_output_filename = "/src/scripts/config.pickle"
+config_output_filename = "scripts/config.pickle"
 
 with open(config_output_filename, 'rb') as f_in:
 	C = pickle.load(f_in)
