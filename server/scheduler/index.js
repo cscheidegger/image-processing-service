@@ -87,12 +87,12 @@ function processImageJob(job, done) {
 
           // parse result and internal errors
           if (!err) {
-            results = getAnalysisFromStdout(stdout);            
+            results = getAnalysisFromStdout(stdout);
           } else {
             results.error = {
               code: "500",
               name: err.name,
-              message: "execução interrompida",
+              message: "O processo de análise retornou um erro inválido.",
               internalMessage: err.message,
               stack: err.stack
             };
