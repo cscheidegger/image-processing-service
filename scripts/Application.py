@@ -85,12 +85,6 @@ if Defects.shadow_index(im) > 0.13:
 	print(IO.json_packing_error('ERR_004'))
 	exit()
 
-'''
-# Watermark detection.
-if Defects.watermark_detection(im) == True:
-	print(IO.json_packing_error('ERR_007'))
-	exit()
-'''
 
 print("Performing segmentation...")
 

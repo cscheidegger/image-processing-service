@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 import sys
 import pickle
+import IO
 from optparse import OptionParser
 import time
 from keras_frcnn import config
@@ -15,7 +16,7 @@ from keras_frcnn import roi_helpers
 import keras_frcnn.resnet as nn
 
 sys.setrecursionlimit(40000)
-config_output_filename = "scripts/config.pickle"
+config_output_filename = IO.get_root(__file__) + "/config.pickle"
 
 with open(config_output_filename, 'rb') as f_in:
 	C = pickle.load(f_in)
