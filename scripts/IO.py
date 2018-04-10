@@ -2,6 +2,9 @@
 
 import json
 import numpy as np
+import os
+import IO
+
 from skimage import io, img_as_ubyte
 
 
@@ -39,6 +42,10 @@ def save_data(data, fpath, fmt='%.3f', mode='a'):
 	np.savetxt(f, data, fmt=fmt, delimiter=' ')	
 	f.close()
 
+
+# Return dinamically the full path of a file
+def get_root(filename):
+	return os.path.dirname(os.path.abspath(filename))
 
 
 # Result info must be placed according to JSON properties
@@ -80,7 +87,7 @@ def json_packing_error(errcode):
 
 
 def get_error_description(errcode):
-	errors = np.genfromtxt('/src/scripts/Errors.txt', delimiter='$', dtype=None)
+	errors = np.genfromtxt(IO.get_root(__file__) + '/Errors.txt', delimiter='$', dtype=None)
 
 	code = errors[:, 0]
 

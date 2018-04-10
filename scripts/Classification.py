@@ -13,7 +13,7 @@ import numpy as np
 import Detection as detect
 
 # default path
-datapath = "/src/data/"
+datapath = IO.get_root(__file__) + "/../data/"
 
 # ~~ CLASSIFIERS ~~
 lda = LDA()
@@ -130,15 +130,6 @@ def color_segmentation(imrgb):
 
 	colormat = np.concatenate((r,g,b,rg,rb,gr,gb,br,bg,g2rb,h,s,v,l,a,b), axis=0)
 	colormat = colormat.transpose()
-
-	'''
-	data = IO.open_data(datapath +	str('clseg.dat'))
-	datx = data[:, :-1]
-	daty = data[:, -1:]
-
-	#clf = GaussianProcessClassifier()
-	svm.fit(datx, daty)
-	'''
 
 	svm = pickle.load(open(datapath + 'clseg.sav', 'rb'))
 
