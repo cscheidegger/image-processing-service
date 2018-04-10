@@ -79,7 +79,7 @@ function processImageJob(job, done) {
       const analysisStartedAt = new Date();
       execFile(
         "python",
-        ["/src/scripts/Application.py", imagePath],
+        ["scripts/Application.py", imagePath],
         (err, stdout, stderr) => {
           let results = {
             status: "valid"
