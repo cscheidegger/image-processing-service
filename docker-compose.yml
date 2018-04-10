@@ -14,7 +14,8 @@ services:
     environment:        
       NODE_CONFIG: |-
           {
-            "mongoConnectionString": "mongodb://mongo/agenda"
+            "mongoConnectionString": "mongodb://mongo/agenda",
+            "imagesPath": "/images"
           }
   mongo:
     image: mongo
