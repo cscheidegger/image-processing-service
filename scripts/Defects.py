@@ -74,13 +74,10 @@ def hasPalette(im):
 
 			# validation by score
 			# The objects are validated if and only if its recognition score are higher than 98%
-			if np.round(float(palettes[1])) <= 0.98:
+			if np.round(float(palettes[1])) <= 0.98 or np.round(float(circles[1])) <= 0.97:
 				print(IO.json_packing_error('ERR_009'))
 				return 'error'
 				
-			if np.round(float(circles[1])) <= 0.97:
-				print(IO.json_packing_error('ERR_009'))
-				return 'error'
 
 			# validation by position
 			# The objective is to check the position of the central circle.
@@ -101,11 +98,7 @@ def hasPalette(im):
 			horck = np.abs(distleft - distright)
 			verck = np.abs(disttop - distdown)
 
-			if horck > np.min([distleft, distright]):
-				print(IO.json_packing_error('ERR_010'))
-				return 'error'
-
-			if verck > np.min([disttop, distdown]) / 2:
+			if horck > np.min([distleft, distright]) or verck > np.min([disttop, distdown]) / 2:
 				print(IO.json_packing_error('ERR_010'))
 				return 'error'
 
@@ -152,7 +145,6 @@ def watermark_detection(imRGB):
 		histogram = histogram[mean:] 
 		histogram = gaussian_filter1d(histogram, sigma=2) # gaussian filter to smooth the histogram
 
-		minimum = np.min(histogram)
 		minpos = np.where(histogram == np.min(histogram))[0][0]
 
 		if minpos < (len(histogram) - 5):
