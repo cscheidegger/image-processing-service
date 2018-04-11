@@ -4,6 +4,7 @@ import json
 import numpy as np
 import os
 import IO
+import Errors
 
 from skimage import io, img_as_ubyte
 
@@ -71,7 +72,7 @@ def json_packing_success(neggs):
 def json_packing_error(errcode):
 
 	# get the error description...
-	erdesc = get_error_description(errcode)
+	erdesc = Errors.gen_msg_error(errcode)
 
 	output = {
 		'error':{
@@ -83,16 +84,3 @@ def json_packing_error(errcode):
 	}
 
 	return json.dumps(output)
-
-
-
-def get_error_description(errcode):
-	errors = np.genfromtxt(IO.get_root(__file__) + '/Errors.txt', delimiter='$', dtype=None)
-
-	code = errors[:, 0]
-
-	description = errors[:, 1]
-
-	idx = np.where(code == errcode.encode('ASCII'))
-
-	return description[idx][0].decode('utf-8')
