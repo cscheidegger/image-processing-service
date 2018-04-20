@@ -26,21 +26,20 @@ gaussian = GaussianProcessClassifier(1.0 * RBF(1.0))
 # objects: list of borders coordinates
 # raidius: central circle radius
 # bimage: binary image
-def area_lenght_classification(objects, radius, bimage):
+def classification_by_area_lenght(objects, radius, threshold):
 	eggs = []
 	clusters = []
 
-	for i in range(len(objects)):
-		area = len(detect.get_object_area(objects[i], bimage)) / radius
+	thres_min, thres_max = threshold
+
+	for obj in objects:
+		nlenght = len(obj) / radius
 		
-		if area > 0.1 and area < 0.32:
-			eggs.append(objects[i])
+		if nlenght > thres_min and nlenght < thres_max:
+			eggs.append(obj)
 
-		elif area >= 0.32:
-			clusters.append(objects[i])
-
-	print("Lenght analysis: " + str(len(eggs)) + " eggs.")
-	print("Lenght analysis: " + str(len(clusters)) + " clusters.")
+		elif nlenght >= thres_max:
+			clusters.append(obj)
 
 	return eggs, clusters
 
@@ -49,7 +48,7 @@ def area_lenght_classification(objects, radius, bimage):
 # Classification of shapes!
 # shape: Feret measures
 # eggs: list of eggs objects
-def border_shape_classification(shapes, eggs, filename):
+def classification_by_border_shape(shapes, eggs, filename):
 	knowledge = IO.open_data(datapath +	str(filename))
 
 	x_train = knowledge[:, :-1]
@@ -65,8 +64,6 @@ def border_shape_classification(shapes, eggs, filename):
 		if predict == 0:
 			reggs.append(eggs[i])
 
-	print("Shape analysis: " + str(len(reggs)) + ".")
-
 	return reggs
 
 
@@ -75,7 +72,7 @@ def border_shape_classification(shapes, eggs, filename):
 # colors: array of colors
 # eggs: list containing eggs objects
 # clusters: lits containing cluster objects
-def object_color_classification(colors, objects, isEgg):
+def classification_by_area_color(colors, objects, isEgg):
 	knowledge = None
 
 	if isEgg == True:
@@ -100,40 +97,3 @@ def object_color_classification(colors, objects, isEgg):
 				robjects.append(objects[i])
 
 	return robjects
-
-
-
-# Image segmentation based on pixel level color classification.
-# imrgb: RGB image
-def color_segmentation(imrgb):
-	width, height = imrgb.shape[:2]
-
-	imhsv = cv2.cvtColor(imrgb, cv2.COLOR_BGR2HSV)
-	imlab = cv2.cvtColor(imrgb, cv2.COLOR_BGR2LAB)
-
-	r = imrgb[:,:,2].reshape(1, -1) / 255
-	g = imrgb[:,:,1].reshape(1, -1) / 255
-	b = imrgb[:,:,0].reshape(1, -1) / 255
-	rg = (r - g) / 255
-	rb = (r - b) / 255
-	gr = (g - r) / 255
-	gb = (g - b) / 255
-	br = (b - r) / 255
-	bg = (b - g) / 255
-	g2rb = (2 * g - r - b) / 255
-	h = imhsv[:,:,0].reshape(1, -1) / 255
-	s = imhsv[:,:,1].reshape(1, -1) / 255
-	v = imhsv[:,:,2].reshape(1, -1) / 255
-	l = imlab[:,:,0].reshape(1, -1) / 255
-	a = imlab[:,:,1].reshape(1, -1) / 255
-	b = imlab[:,:,2].reshape(1, -1) / 255
-
-	colormat = np.concatenate((r,g,b,rg,rb,gr,gb,br,bg,g2rb,h,s,v,l,a,b), axis=0)
-	colormat = colormat.transpose()
-
-	svm = pickle.load(open(datapath + 'clseg.sav', 'rb'))
-
-	res = svm.predict(colormat)
-	res = res.reshape(width, height)
-
-	return res

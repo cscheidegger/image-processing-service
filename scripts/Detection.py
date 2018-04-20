@@ -8,6 +8,8 @@ from scipy.spatial import distance
 from scipy.ndimage.morphology import binary_fill_holes
 from sklearn.cluster import KMeans
 
+
+
 # Detect the central circle. This is useful to correctly crop the palette image
 # image: rgb image
 def detect_circle_mark(image):
@@ -29,7 +31,7 @@ def detect_circle_mark(image):
 
 	# detecting circle using ransac.
 	if len(coords) > 0:
-		model, inliers = measure.ransac(coords, measure.CircleModel, min_samples=3, residual_threshold=1, max_trials=1000)	
+		model, _ = measure.ransac(coords, measure.CircleModel, min_samples=3, residual_threshold=1, max_trials=1000)	
 	
 	else:
 		return None
@@ -50,103 +52,43 @@ def detect_circle_mark(image):
 
 
 
-# Detect the contour of all objects in the image
+# Object detection algorithm.
+# Returns all the pixels of each objects
 # bimage: binary image
 def object_detection(bimage):
-	imseg = img_as_ubyte(segmentation.find_boundaries(bimage, connectivity=1, mode='outer', background=1)) # segmented image
-	x, y = np.where(imseg == 255)
-	coord = np.c_[x, y]
+	shape = bimage.shape[:2]
 
 	objects = []
-	processed_obj = []
-	to_be_processed_obj = []
+	pixels = []
+	pending = []
+	obsize = len(bimage[bimage == 0])
 
-	while len(coord) > 0:
-
-		if len(to_be_processed_obj) == 0:
-			to_be_processed_obj.append(coord[0].tolist())
-
-			if len(processed_obj) > 0:
-				objects.append({'pixels': np.array(processed_obj), 'lenght': len(processed_obj)})
-				processed_obj = []
-
-
-		pixel = to_be_processed_obj.pop(0)
-
-		# remove central pixel
-		coord = np.delete(coord, np.where(np.logical_and(coord[:, 0] == pixel[0], coord[:, 1] == pixel[1])), 0)
-
-
-		# finding neighbors with value equals 255
-		rows = np.logical_or(coord[:, 0] == pixel[0] - 1, coord[:, 0] == pixel[0] + 1)
-		rows = np.logical_or(rows, coord[:, 0] == pixel[0])
-
-		cols = np.logical_or(coord[:, 1] == pixel[1] - 1, coord[:, 1] == pixel[1] + 1)
-		cols = np.logical_or(cols, coord[:, 1] == pixel[1])
-
-		items = np.logical_and(rows, cols)
-		index = np.where(items)
-		items = coord[items]
-
-		# removing neighbors from the global pixels list
-		coord = np.delete(coord, index, 0)
+	while obsize > 0:
+		pending.append(np.argwhere(bimage == 0)[0])
 		
-		# add and create a dictionary according
-		if len(items) > 0:
-			for item in items:
-				to_be_processed_obj.append(item.tolist())
+		while len(pending) > 0:
+			pixel = pending.pop()
+			nbrs = _get_neighbors(pixel, shape)
 
+			for nbr in nbrs:
+				if bimage[nbr[0], nbr[1]] == 0:
+					pending.append(nbr)
+					bimage[nbr[0], nbr[1]] = 255
 
-		processed_obj.append(pixel)
+			pixels.append(pixel)
 
+		objects.append(np.array(pixels))
 
-	if len(processed_obj) > 0:
-		objects.append({'pixels': np.array(processed_obj), 'lenght': len(processed_obj)})
-
+		obsize = len(bimage[bimage == 0])
+		pixels = []
 
 	return objects
 
 
 
-# Created to get the best option of pixel which pass across the points of line equation.
-def _second_point_line_eq(ref, points):
-	candidates = []
-	maxdist = 1
-	near_id = 1
-	p2 = 0
-
-	mxid = 0
-	for pixel in points:
-		pid = pixel[0]
-
-		if pid > mxid:
-			mxid = pid
-
-
-	while maxdist == 1 and near_id <= mxid:		
-
-		for pixel in points:
-			if pixel[0] == points[near_id][0]:
-				candidates.append(pixel[1])
-
-		for pixel in candidates:
-			dist = distance.euclidean(ref, pixel) 
-
-			if dist > maxdist:
-				maxdist = dist
-				p2 = pixel
-
-		near_id +=1
-
-	return p2
-
-
-
-# Detects shape features of an object over an image
-# object: coordinates of an object.
-def shape_detection(egg):
-
-	pixels = egg['pixels']
+# Method to extract the Feret Dimensions of an object
+# pixels: Pixels of an object
+def shape_detection(pixels):
 
 	# find the maximum distance between two points.
 	distmat = distance.squareform(distance.pdist(pixels, 'euclidean'))
@@ -155,7 +97,6 @@ def shape_detection(egg):
 
 	pa = dist_id[0]
 	pb = dist_id[1]
-	
 
 	# find the equation of major axis (which fits the 2 known points).
 	# next, compute the perpendicular line and get both left and right points.
@@ -259,8 +200,20 @@ def shape_detection(egg):
 					p1 = candidates[i]
 					p2 = candidates[j]
 
-
 	return [mxdist, dist]
+
+
+
+# Get the border pixels of an egg
+# egg: egg pixels
+# imsize: croped image bidimensional shape
+def get_egg_border(egg, imsize):
+	mask = img_as_ubyte(np.ones(imsize))
+	mask[egg[:, 0], egg[:, 1]] = 0
+	
+	imseg = img_as_ubyte(segmentation.find_boundaries(mask, connectivity=1, mode='outer', background=1))
+
+	return np.argwhere(imseg == 255)
 
 
 
@@ -285,24 +238,65 @@ def get_object_area(object, bimage):
 
 
 
-# Return the true colors info of an object
-# Format: 
-# red + 
-# green + 
-# blue + 
-# red - green + 
-# red - blue +
-# green - red +
-# green - blue +
-# blue - red +
-# blue - green +
-# 2 x green - red - blue +
-# hue +
-# saturation +
-# value +
-# luminance +
-# a +
-# b
+# Created to get the best option of pixel which pass across the points of line equation.
+# ref: point of reference
+# points: array of points
+def _second_point_line_eq(ref, points):
+	candidates = []
+	maxdist = 1
+	near_id = 1
+	p2 = 0
+
+	mxid = 0
+	for pixel in points:
+		pid = pixel[0]
+
+		if pid > mxid:
+			mxid = pid
+
+
+	while maxdist == 1 and near_id <= mxid:		
+
+		for pixel in points:
+			if pixel[0] == points[near_id][0]:
+				candidates.append(pixel[1])
+
+		for pixel in candidates:
+			dist = distance.euclidean(ref, pixel) 
+
+			if dist > maxdist:
+				maxdist = dist
+				p2 = pixel
+
+		near_id +=1
+
+	return p2
+
+
+
+# Get the 8 neighbors of a pixel
+# coord: pixel coordinates (x, y)
+# shape: image shape
+def _get_neighbors(coord, shape):
+	width, height = shape
+	x, y = coord
+
+	nbrs = []
+
+	for i in range(-1, 2):
+		for j in range(-1, 2):
+			if (x + i >= 0 and x + i < width) and (y + j >= 0 and y + j < height):
+				nbrs.append([x + i, y + j])
+	
+	return nbrs
+
+
+
+# Return color features of objects
+# obcoord: objects coordenates
+# imrgb: rgb image
+# imhsv: hsv image
+# imlab: lab image
 def get_object_color(obcoord, imrgb, imhsv, imlab):
 
 	cfeat = [] # Color features
@@ -312,14 +306,14 @@ def get_object_color(obcoord, imrgb, imhsv, imlab):
 
 	r = imrgb[:,:,2] / 255
 	g = imrgb[:,:,1] / 255
-	b = imrgb[:,:,0] / 255
+	bl = imrgb[:,:,0] / 255
 	rg = (r - g) / 255
-	rb = (r - b) / 255
+	rb = (r - bl) / 255
 	gr = (g - r) / 255
-	gb = (g - b) / 255
-	br = (b - r) / 255
-	bg = (b - g) / 255
-	g2rb = (2 * g - r - b) / 255
+	gb = (g - bl) / 255
+	br = (bl - r) / 255
+	bg = (bl - g) / 255
+	g2rb = (2 * g - r - bl) / 255
 	h = imhsv[:,:,0] / 255
 	s = imhsv[:,:,1] / 255
 	v = imhsv[:,:,2] / 255
@@ -333,7 +327,7 @@ def get_object_color(obcoord, imrgb, imhsv, imlab):
 
 		colors.append(np.abs(np.mean(r[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0)))
 		colors.append(np.abs(np.mean(g[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0)))
-		colors.append(np.abs(np.mean(b[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0)))
+		colors.append(np.abs(np.mean(bl[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0)))
 		colors.append(np.abs(np.mean(rg[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0)))
 		colors.append(np.abs(np.mean(rb[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0)))
 		colors.append(np.abs(np.mean(gr[obcoord[id_ob][:, 0], obcoord[id_ob][:, 1]], axis=0)))

@@ -9,7 +9,7 @@ import Errors
 from skimage import io, img_as_ubyte
 
 
-AEIP_CUR_VERSION = 1.3
+AEIP_CUR_VERSION = 1.4
 IM_RESOLUTION = ''
 
 
