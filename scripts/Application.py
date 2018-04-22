@@ -95,7 +95,7 @@ bimage = Binary.im_threshold(Clusterization.im_quantization(im, 3))
 # ============================================================== SIZE
 # get perimeter of everything is in the image
 
-tinf = [0.13, 0.35]
+tinf = [0.10, 0.35]
 tsup = [0.10, 0.50]
 
 print("Peforming classification by size...")
@@ -183,7 +183,7 @@ if len(areas_eggs) > 0:
 	for i in range(len(areas_eggs)):
 		areas_len.append(len(areas_eggs[i]))
 
-	eggs_size_avg = np.mean(areas_len)
+	eggs_size_avg = np.max(areas_len)
 
 else:
 	eggs_size_avg = 130

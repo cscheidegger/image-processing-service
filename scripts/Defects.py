@@ -98,7 +98,7 @@ def hasPalette(im):
 			horck = np.abs(distleft - distright)
 			verck = np.abs(disttop - distdown)
 
-			if horck > np.min([distleft, distright]) or verck > np.min([disttop, distdown]) / 2:
+			if horck > np.min([distleft, distright]) or verck > np.min([disttop, distdown]) / 1.25:
 				print(IO.json_packing_error('ERR_010'))
 				return 'error'
 
