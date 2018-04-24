@@ -183,10 +183,10 @@ if len(areas_eggs) > 0:
 	for i in range(len(areas_eggs)):
 		areas_len.append(len(areas_eggs[i]))
 
-	eggs_size_avg = np.max(areas_len)
+	eggs_size_avg = np.median(areas_len)
 
 else:
-	eggs_size_avg = 130
+	eggs_size_avg = params[2] * 0.24
 
 # Estimating how many eggs fits in each cluster...
 for cluster in areas_clusters:
