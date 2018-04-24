@@ -54,6 +54,10 @@ def shadow_index(im):
 def hasPalette(im):
 	coordinates, probs = DeepLearning.get_features(im)
 
+	if not check_background(im, coordinates[0]):
+		print(IO.json_packing_error('ERR_011'))
+		return 'error'
+
 	if len(probs) > 0:
 		print(probs)
 		# sort values from the highest to lowest
@@ -153,3 +157,25 @@ def watermark_detection(imRGB):
 				return True
 
 	return False
+
+
+
+# Check if background is white or something close to it
+# imrgb: RGB image
+# card_coord: pallete coordinates
+def check_background(imrgb, card_coord):
+	imgray = cv2.cvtColor(imrgb, cv2.COLOR_BGR2LAB)[:,:,0]
+
+	bckgndL = np.array(imgray[:card_coord[1], :]).flatten()
+	bckgndT = np.array(imgray[:, :card_coord[0]]).flatten()
+	bckgndR = np.array(imgray[:, card_coord[2]:]).flatten()
+	bckgndB = np.array(imgray[card_coord[3]:, :]).flatten()
+
+	bckgnd = np.concatenate((bckgndL, bckgndT, bckgndR, bckgndB)).mean()
+
+	print("Background brightness: " + str(bckgnd))
+
+	if bckgnd < 100:
+		return False
+
+	return True

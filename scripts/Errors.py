@@ -34,3 +34,6 @@ def gen_msg_error(errcode):
 
     elif errcode == 'ERR_010':
         return 'Enquadramento da paleta inadequado.'
+
+    elif errcode == 'ERR_011':
+        return 'Fundo da imagem escuro.'
