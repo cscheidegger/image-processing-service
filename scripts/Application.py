@@ -48,7 +48,7 @@ if type(im) == type(""):
 	exit()
 
 
-print("Detecting circle...\n")
+print("Detecting circle...")
 
 # detecting the central circle
 # The program will try to recognize the central circle in 3 attempts.
@@ -84,7 +84,7 @@ if Defects.shadow_index(im) > 0.13:
 	exit()
 
 
-print("Performing segmentation...")
+print("\nPerforming segmentation...\n")
 
 # First step: quantization by clusterization to reduce the amount of colors
 bimage = Binary.im_threshold(Clusterization.im_quantization(im, 3))
@@ -116,7 +116,7 @@ areas_eggs += new_areas_eggs # adding possible new eggs to the egg list
 
 # Reconstruct binary image.
 # After all, let's put these objects into the image
-bimage = np.ones_like(bimage) * 255
+bimage = np.ones_like(bimage, dtype=np.uint8) * 255
 
 for egg in areas_eggs:
 	bimage[egg[:, 0], egg[:, 1]] = 0
@@ -132,14 +132,14 @@ print("Size - Clusters: " + str(len(areas_clusters)))
 # ============================================================== BORDER SHAPE
 # checking the shapes of eggs...
 
-print("Performing shape detection...\n")
+print("\nPerforming shape detection...")
 
 shapes = []
 for i in range(len(areas_eggs)):
 	shapes.append(detect.shape_detection(detect.get_egg_border(areas_eggs[i], bimage.shape[:2])) / params[2])
 
 
-areas_eggs = Classification.classification_by_border_shape(shapes, areas_eggs, "sh.dat")
+areas_eggs = Classification.classification_by_ipk(shapes, areas_eggs, "sh.ipk")
 
 print("Shape - Eggs: " + str(len(areas_eggs)))
 print("Shape - Clusters: " + str(len(areas_clusters)))
@@ -159,8 +159,8 @@ imLAB = cv2.cvtColor(imcpy, cv2.COLOR_BGR2LAB)
 ecolors = detect.get_object_color(areas_eggs, imcpy, imHSV, imLAB)
 ccolors = detect.get_object_color(areas_clusters, imcpy, imHSV, imLAB)
 
-areas_eggs = Classification.classification_by_area_color(ecolors, areas_eggs, True)
-areas_clusters = Classification.classification_by_area_color(ccolors, areas_clusters, False)
+areas_eggs = Classification.classification_by_ipk(ecolors, areas_eggs, 'cl.ipk')
+areas_clusters = Classification.classification_by_ipk(ccolors, areas_clusters, 'clcls.ipk')
 
 print("Color - Eggs: " + str(len(areas_eggs)))
 print("Color - Clusters: " + str(len(areas_clusters)))
