@@ -208,7 +208,7 @@ def shape_detection(pixels):
 # egg: egg pixels
 # imsize: croped image bidimensional shape
 def get_egg_border(egg, imsize):
-	mask = img_as_ubyte(np.ones(imsize))
+	mask = img_as_ubyte(np.ones(imsize, dtype=np.uint8))
 	mask[egg[:, 0], egg[:, 1]] = 0
 	
 	imseg = img_as_ubyte(segmentation.find_boundaries(mask, connectivity=1, mode='outer', background=1))

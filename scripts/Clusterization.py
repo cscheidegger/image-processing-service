@@ -35,12 +35,12 @@ def pix_quantization(imrgb, imquant):
     ihsv = imlab[imquant == 0]
 
     # run K-means to clusterize pixels
-    clt = MiniBatchKMeans(n_clusters=8)
+    clt = MiniBatchKMeans(n_clusters=5)
     labels = clt.fit_predict(ihsv.reshape(-1, 3))
     quant = clt.cluster_centers_.astype("uint8")[labels]
 
     # turning a LAB image into a white RGB image
-    imlab = np.ones_like(imlab)
+    imlab = np.ones_like(imlab, dtype=np.uint8)
     imlab[:,:,0] = 255
     imlab[:,:,1] = 128
     imlab[:,:,2] = 128
@@ -66,6 +66,6 @@ def pix_quantization(imrgb, imquant):
 
     # Restoring some pixels lost during the clustering process.
     imbin = morphology.closing(cv2.cvtColor(srgb, cv2.COLOR_BGR2GRAY))
-    imbin = cv2.erode(imbin, np.ones((5,5), np.uint8))
+    imbin = cv2.erode(imbin, np.ones((5,5), dtype=np.uint8))
 
     return img_as_ubyte(imbin)
