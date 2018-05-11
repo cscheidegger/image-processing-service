@@ -86,8 +86,8 @@ def object_detection(bimage):
 
 
 
-# Method to extract the Feret Dimensions of an object
-# pixels: Pixels of an object
+# Detects shape features of an object over an image
+# object: coordinates of an object.
 def shape_detection(pixels):
 
 	# find the maximum distance between two points.
@@ -97,7 +97,7 @@ def shape_detection(pixels):
 
 	pa = dist_id[0]
 	pb = dist_id[1]
-
+	
 	# find the equation of major axis (which fits the 2 known points).
 	# next, compute the perpendicular line and get both left and right points.
 	x0 = pixels[pa][0]
@@ -111,6 +111,7 @@ def shape_detection(pixels):
 	p1 = 0
 	p2 = 0
 	dist = 0
+	dists = [] # array to store the others distance values
 
 	if coef1 != 0 and coef2 != 0:
 
@@ -122,85 +123,70 @@ def shape_detection(pixels):
 		minor_y = y if y < y0 else y0
 		minor_x = x if x < x0 else x0
 
-		y0 = np.round(abs(y - y0) / 2) + minor_y
-		x0 = np.round(abs(x - x0) / 2) + minor_x
-
-		a = -1/a # a perpendicular line has the oposite value of slope of the original line
-
-		# fundamental equation of line
-		# finding coeficient b
-		# y - y0 = m * (x - x0) -> y = ax + b
-		b = a * -x0 + y0
-
-		# find the 2 points which cancell the equation 
-		points = []
-		feasible = []
-
-		for pix in pixels:
-			points.append([np.abs(pix[1] - np.round(a * pix[0] + b)), pix])
-
-			if pix[1] == np.round(a * pix[0] + b):
-				feasible.append(pix)
-
-
-		# if we don't get atleast 2 points, let's get the closest one
-		if len(feasible) < 2:
-			points = sorted(points, key=lambda diff: diff[0])
-
-			if len(feasible) == 0:
-				p1 = points[0][1]
-				p2 = _second_point_line_eq(p1, points)
-
-			elif len(feasible) == 1:
-				p1 = feasible[0]
-				p2 = _second_point_line_eq(p1, points)
-
-			dist = distance.euclidean(p1, p2)
-
-		elif len(feasible) == 2:
-			p1 = feasible[0]
-			p2 = feasible[1]
-
-			dist = distance.euclidean(p1, p2)
-
-		else: # get the pixels which has the farthest distance
-			for i in range(len(feasible)):
-				for j in range(len(feasible)):
-					d = distance.euclidean(feasible[i], feasible[j])
-
-					if d > dist:
-						dist = d
-						p1 = feasible[i]
-						p2 = feasible[j]
-
-	else:
-		minor_y = y if y < y0 else y0
-		minor_x = x if x < x0 else x0
-
 		cy = np.round(abs(y - y0) / 2) + minor_y
 		cx = np.round(abs(x - x0) / 2) + minor_x
+		
+		# ~~~~~~~~~~~~~~~ upgraded on may, 2018
+		# Once the largest line and its center's points were found, we now have
+		# to find the remaining ones. First its perperdicular, then those which has 45º relative to it.
 
-		candidates = []
+		r45 = np.tan(np.arctan(a) - np.deg2rad(45))
+		slopes = [-1/a, r45, -1/r45]
 
-		# coluna 0
-		if coef1 == 0:
-			candidates = pixels[pixels[:, 0] == cx]
+		for ang in slopes:
 
-		# linha 0
-		else:
-			candidates = pixels[pixels[:, 1] == cy]
+			# fundamental equation of line
+			# finding coeficient b
+			# y - y0 = m * (x - x0) -> y = ax + b
+			b = ang * -cx + cy
 
-		dist = 0
-		for i in range(len(candidates)):
-			for j in range(len(candidates)):
-				d = distance.euclidean(candidates[i], candidates[j])
+			# 2 - find the 2 points which cancell the equation 
+			points = []
+			feasible = []
 
-				if d > dist:
-					dist = d
-					p1 = candidates[i]
-					p2 = candidates[j]
+			for pix in pixels:
+				points.append([np.abs(pix[1] - np.round(ang * pix[0] + b)), pix])
 
-	return [mxdist, dist]
+				if pix[1] == np.round(ang * pix[0] + b):
+					feasible.append(pix)
+
+
+			# if we don't get atleast 2 points, let's get the closest one
+			if len(feasible) < 2:
+				points = sorted(points, key=lambda diff: diff[0])
+
+				if len(feasible) == 0:
+					p1 = points[0][1]
+					p2 = _second_point_line_eq(p1, points)
+
+				elif len(feasible) == 1:
+					p1 = feasible[0]
+					p2 = _second_point_line_eq(p1, points)
+
+				dist = distance.euclidean(p1, p2)
+
+			elif len(feasible) == 2:
+				p1 = feasible[0]
+				p2 = feasible[1]
+
+				dist = distance.euclidean(p1, p2)
+
+			else: # get the pixels which has the farthest distance
+				for i in range(len(feasible)):
+					for j in range(len(feasible)):
+						d = distance.euclidean(feasible[i], feasible[j])
+
+						if d > dist:
+							dist = d
+							p1 = feasible[i]
+							p2 = feasible[j]
+
+			dists.append(dist)
+
+	else:
+		return np.array([0, 0, 0, 0])
+
+	return np.append(dists, mxdist)
 
 
 
