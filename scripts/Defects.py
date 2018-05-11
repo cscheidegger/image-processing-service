@@ -165,17 +165,27 @@ def watermark_detection(imRGB):
 # card_coord: pallete coordinates
 def check_background(imrgb, card_coord):
 	imgray = cv2.cvtColor(imrgb, cv2.COLOR_BGR2LAB)[:,:,0]
+	imhsv = cv2.cvtColor(imrgb, cv2.COLOR_BGR2HSV)[:,:,0]
+
+	print(imhsv.mean())
 
 	bckgndL = np.array(imgray[:card_coord[1], :]).flatten()
 	bckgndT = np.array(imgray[:, :card_coord[0]]).flatten()
 	bckgndR = np.array(imgray[:, card_coord[2]:]).flatten()
 	bckgndB = np.array(imgray[card_coord[3]:, :]).flatten()
 
-	bckgnd = np.concatenate((bckgndL, bckgndT, bckgndR, bckgndB)).mean()
+	bckgnd = np.concatenate((bckgndL, bckgndT, bckgndR, bckgndB))
 
-	print("Background brightness: " + str(bckgnd))
+	bckmean = bckgnd.mean()
+	bckstd = bckgnd.std()
 
-	if bckgnd < 100:
+	print("Background brightness: " + str(bckmean))
+	print("Background disparity: " + str(bckstd))
+
+	if bckmean < 100:
+		return False
+
+	if bckstd > 23:
 		return False
 
 	return True

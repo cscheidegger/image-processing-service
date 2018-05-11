@@ -62,16 +62,9 @@ def adjust_resolution(im):
 		print(IO.json_packing_error('ERR_008'))
 		exit()
 
-	'''
-	# But in case that the image has a high resolution, it may hinder the process as well.
-    	# If so, we need to lower the resolution.
-    	if rows > 3000:
-    		ratio = 3 * 10e4 / rows
-    		prefsize = int(ratio * cols / 100)
-
-    		im = cv2.resize(im, (prefsize, 3000))
-	'''
 	return im
+
+
 
 # Even this program accepting images both in portrait or landscape orientations
 # I decided to fix the portrait as the orientation pattern.
@@ -85,3 +78,16 @@ def adjust_position(im):
 		im = cv2.flip(im, 1)
 
 	return im
+
+
+
+# Increase image contrast using CLAHE adaptive contrast on every channel
+# imrgb: RGB image
+def adjust_contrast(imrgb):
+	clahe = cv2.createCLAHE(clipLimit=1.0, tileGridSize=(2,2))
+
+	imrgb[:,:,0] = clahe.apply(imrgb[:,:,0])
+	imrgb[:,:,1] = clahe.apply(imrgb[:,:,1])
+	imrgb[:,:,2] = clahe.apply(imrgb[:,:,2])
+
+	return imrgb

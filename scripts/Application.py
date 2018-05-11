@@ -83,6 +83,8 @@ if Defects.shadow_index(im) > 0.13:
 	print(IO.json_packing_error('ERR_004'))
 	exit()
 
+# improve contrast among the objects and palette
+im = Utils.adjust_contrast(im)
 
 print("\nPerforming segmentation...\n")
 
