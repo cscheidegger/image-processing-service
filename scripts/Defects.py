@@ -185,7 +185,7 @@ def check_background(imrgb, card_coord):
 	if bckmean < 100:
 		return False
 
-	if bckstd > 23:
+	if bckstd > 25:
 		return False
 
 	return True
