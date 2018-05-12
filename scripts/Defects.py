@@ -55,7 +55,6 @@ def hasPalette(im):
 	coordinates, probs = DeepLearning.get_features(im)
 
 	if not check_background(im, coordinates[0]):
-		print(IO.json_packing_error('ERR_011'))
 		return 'error'
 
 	if len(probs) > 0:
@@ -78,10 +77,13 @@ def hasPalette(im):
 
 			# validation by score
 			# The objects are validated if and only if its recognition score are higher than 98%
-			if np.round(float(palettes[1])) <= 0.98 or np.round(float(circles[1])) <= 0.97:
+			if np.round(float(palettes[1])) <= 0.98:
 				print(IO.json_packing_error('ERR_009'))
 				return 'error'
-				
+			
+			if np.round(float(circles[1])) <= 0.97:
+				print(IO.json_packing_error('ERR_003'))
+				return 'error'
 
 			# validation by position
 			# The objective is to check the position of the central circle.
@@ -164,28 +166,34 @@ def watermark_detection(imRGB):
 # imrgb: RGB image
 # card_coord: pallete coordinates
 def check_background(imrgb, card_coord):
-	imgray = cv2.cvtColor(imrgb, cv2.COLOR_BGR2LAB)[:,:,0]
-	imhsv = cv2.cvtColor(imrgb, cv2.COLOR_BGR2HSV)[:,:,0]
+	luminance = cv2.cvtColor(imrgb, cv2.COLOR_BGR2LAB)[:,:,0]
 
-	print(imhsv.mean())
+	bckgndL = np.array(luminance[:card_coord[1], :]).flatten()
+	bckgndT = np.array(luminance[:, :card_coord[0]]).flatten()
+	bckgndR = np.array(luminance[:, card_coord[2]:]).flatten()
+	bckgndB = np.array(luminance[card_coord[3]:, :]).flatten()
 
-	bckgndL = np.array(imgray[:card_coord[1], :]).flatten()
-	bckgndT = np.array(imgray[:, :card_coord[0]]).flatten()
-	bckgndR = np.array(imgray[:, card_coord[2]:]).flatten()
-	bckgndB = np.array(imgray[card_coord[3]:, :]).flatten()
+	bckgnd = []
+	for side in [bckgndL, bckgndT, bckgndB, bckgndR]:
+		if len(side) > 0:
+			bckgnd = np.concatenate((bckgnd, side))
 
-	bckgnd = np.concatenate((bckgndL, bckgndT, bckgndR, bckgndB))
+	if len(bckgnd) == 0:
+		return True
 
-	bckmean = bckgnd.mean()
-	bckstd = bckgnd.std()
+	else:
+		bckmean = bckgnd.mean()
+		bckstd = bckgnd.std()
 
-	print("Background brightness: " + str(bckmean))
-	print("Background disparity: " + str(bckstd))
+		print("Background brightness: " + str(bckmean))
+		print("Background disparity: " + str(bckstd))
 
-	if bckmean < 100:
-		return False
+		if bckmean < 100:
+			print(IO.json_packing_error('ERR_011'))
+			return False
 
-	if bckstd > 25:
-		return False
+		if bckstd > 23:
+			print(IO.json_packing_error('ERR_004'))
+			return False
 
-	return True
+		return True

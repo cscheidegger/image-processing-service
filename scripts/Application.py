@@ -51,15 +51,15 @@ if type(im) == type(""):
 print("Detecting circle...")
 
 # detecting the central circle
-# The program will try to recognize the central circle in 3 attempts.
+# The program will try to recognize the central circle in 30 attempts.
 # In case the circle isn't yet recognized, we stop the execution
 params = None
-for att in range(15):
+for att in range(30):
 	params = detect.detect_circle_mark(im)
 
 	if type(params) == type(None):
 		
-		if att == 14:
+		if att == 29:
 			print(IO.json_packing_error('ERR_003'))
 			exit()
 		else:
@@ -188,7 +188,7 @@ if len(areas_eggs) > 0:
 	eggs_size_avg = np.median(areas_len)
 
 else:
-	eggs_size_avg = params[2] * 0.24
+	eggs_size_avg = params[2] * 0.24  # 0.24 is the ratio of average eggs size by circle radius
 
 # Estimating how many eggs fits in each cluster...
 for cluster in areas_clusters:
