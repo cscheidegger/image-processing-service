@@ -174,16 +174,19 @@ def check_background(imrgb, card_coord):
 	bckgndB = np.array(luminance[card_coord[3]:, :]).flatten()
 
 	bckgnd = []
+	sides = []
+
 	for side in [bckgndL, bckgndT, bckgndB, bckgndR]:
 		if len(side) > 0:
 			bckgnd = np.concatenate((bckgnd, side))
+			sides.append(np.array(side).mean())
 
 	if len(bckgnd) == 0:
 		return True
 
 	else:
 		bckmean = bckgnd.mean()
-		bckstd = bckgnd.std()
+		bckstd = np.array(sides).std()
 
 		print("Background brightness: " + str(bckmean))
 		print("Background disparity: " + str(bckstd))
@@ -192,7 +195,7 @@ def check_background(imrgb, card_coord):
 			print(IO.json_packing_error('ERR_011'))
 			return False
 
-		if bckstd > 23:
+		if bckstd > 15:
 			print(IO.json_packing_error('ERR_004'))
 			return False
 
