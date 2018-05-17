@@ -54,9 +54,6 @@ def shadow_index(im):
 def hasPalette(im):
 	coordinates, probs = DeepLearning.get_features(im)
 
-	if not check_background(im, coordinates[0]):
-		return 'error'
-
 	if len(probs) > 0:
 		print(probs)
 		# sort values from the highest to lowest
@@ -106,6 +103,9 @@ def hasPalette(im):
 
 			if horck > np.min([distleft, distright]) or verck > np.min([disttop, distdown]) / 1.25:
 				print(IO.json_packing_error('ERR_010'))
+				return 'error'
+
+			if not check_background(im, coordinates[0]):
 				return 'error'
 
 			return im
