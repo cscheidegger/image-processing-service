@@ -195,7 +195,7 @@ def check_background(imrgb, card_coord):
 			print(IO.json_packing_error('ERR_011'))
 			return False
 
-		if bckstd > 15:
+		if bckstd > 23:
 			print(IO.json_packing_error('ERR_004'))
 			return False
 
