@@ -8,10 +8,7 @@ import Errors
 
 from skimage import io, img_as_ubyte
 
-
-AEIP_CUR_VERSION = 1.4
 IM_RESOLUTION = ''
-
 
 # initialize some important values. 
 # These informations are going to be included in the JSON dictionary for output reasons..
@@ -52,13 +49,11 @@ def get_root(filename):
 # Result info must be placed according to JSON properties
 # neggs: number of eggs
 # imres: image resolution
-# version: Current AeIP version
 def json_packing_success(neggs):
 
 	output = {
         'eggCount': str(neggs),
-        'resolution': str(IM_RESOLUTION),
-		'ipsVersion': str(AEIP_CUR_VERSION)
+        'resolution': str(IM_RESOLUTION)
 	}
 
 	return json.dumps(output)
@@ -79,8 +74,7 @@ def json_packing_error(errcode):
 			'code': str(errcode),
 			'message': str(erdesc),
 		},
-        'resolution': str(IM_RESOLUTION),
-        'ipsVersion': str(AEIP_CUR_VERSION)
+        'resolution': str(IM_RESOLUTION)
 	}
 
 	return json.dumps(output)
