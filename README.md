@@ -29,7 +29,7 @@ If you need shell access to the server, get your container name with `docker ps`
 
 ### Upgrading python scripts
 
-For modifications in python scripting to take effect, it is needed to update the property `ipsVersion` in `package.json` file and **restart the server in production**. The AeTrapp's API server will reach endpoint `/api/description` of this IPS to check if there is a new algorithm version available. If so, it will start an re-analysis of samples every X minutes.
+For modifications in python scripting to take effect, it is needed to update the property `ipsVersion` in `package.json` file. The AeTrapp's API server will reach endpoint `/api/description` of this IPS to check if there is a new algorithm version available. If so, it will start an re-analysis of samples every X minutes.
 
 ## Changelog
 
