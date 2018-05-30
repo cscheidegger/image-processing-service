@@ -1,10 +1,17 @@
 const fs = require("fs");
-const { execFile } = require("child_process");
 const request = require("request");
-const Agenda = require("agenda");
-const Agendash = require("agendash");
+
+// Python runner
+const { execFile } = require("child_process");
+
+// Configuration
 const config = require("config");
 const imagesPath = config.get("imagesPath");
+const { ipsVersion } = require('../../package.json');
+
+// Agenda modules
+const Agenda = require("agenda");
+const Agendash = require("agendash");
 
 // Helper function to analyse results from script
 function getAnalysisFromStdout(stdout) {
@@ -59,7 +66,7 @@ function processImageJob(job, done) {
 
     return new Promise((resolve, reject) => {
       if (!imageUrl)
-        return reject(new Error("process image job: missing 'image.url'"))
+        return reject(new Error("process image job: missing 'image.url'"));
 
       const writeStream = fs.createWriteStream(imagePath);
       writeStream.on("error", reject);
@@ -68,7 +75,7 @@ function processImageJob(job, done) {
         .get(imageUrl)
         .on("response", res => {
           if (res.statusCode !== 200 || res.headers['content-type'].indexOf("image") !== 0) {
-            return reject(new Error("process image job: could not fetch image"))
+            return reject(new Error("process image job: could not fetch image"));
           } else resolve();
         })
         .on("error", reject)
@@ -82,7 +89,7 @@ function processImageJob(job, done) {
       execFile(
         "python",
         ["scripts/Application.py", imagePath],
-        (err, stdout, stderr) => {
+        (err, stdout) => {
           let results = {
             status: "valid"
           };
@@ -106,6 +113,10 @@ function processImageJob(job, done) {
           // set timestamps
           results.analysisStartedAt = analysisStartedAt;
           results.analysisFinishedAt = new Date();
+
+          results.ipsData = {
+            ipsVersion
+          };
 
           job.attrs.data = Object.assign(job.attrs.data, results);
           job.save();
