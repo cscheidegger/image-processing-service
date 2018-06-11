@@ -31,7 +31,7 @@ def detect_circle_mark(image):
 
 	# detecting circle using ransac.
 	if len(coords) > 0:
-		model, _ = measure.ransac(coords, measure.CircleModel, min_samples=3, residual_threshold=1, max_trials=1000)	
+		model, _ = measure.ransac(coords, measure.CircleModel, min_samples=3, residual_threshold=2, max_trials=1000)	
 	
 	else:
 		return None
@@ -42,11 +42,7 @@ def detect_circle_mark(image):
 	for param in model.params:
 		if param < 0 or (param > gsrows or param > gscols):
 			return None
-
-
-	rr, cc = draw.circle_perimeter(int(model.params[0]), int(model.params[1]), int(model.params[2]), shape=image.shape)
-	gsimage[rr, cc] = 0
-
+			
 
 	return model.params # center X, center Y, radius
 

@@ -37,7 +37,7 @@ def classification_by_area_lenght(objects, radius, threshold):
 # filename: .ipk file path
 def classification_by_ipk(features, objects, filename):
 
-	if len(features) == 0:
+	if type(features) == type(None) or len(features) == 0:
 		return []
 
 	classifier = pickle.load(open(datapath + filename, 'rb'))

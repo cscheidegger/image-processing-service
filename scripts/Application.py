@@ -52,7 +52,7 @@ print("Detecting circle...")
 
 # detecting the central circle
 # The program will try to recognize the central circle in 30 attempts.
-# In case the circle isn't yet recognized, we stop the execution
+# In case the circle isn't yet recognized, we flip the image in 180 degrees.
 params = None
 for att in range(30):
 	params = detect.detect_circle_mark(im)
@@ -60,13 +60,24 @@ for att in range(30):
 	if type(params) == type(None):
 		
 		if att == 29:
-			print(IO.json_packing_error('ERR_003'))
-			exit()
+			for i in range(2):
+				im = cv2.transpose(im)
+				im = cv2.flip(im, 1) 
+
+			params = detect.detect_circle_mark(im)
+
+			if type(params) == type(None):
+				print(IO.json_packing_error('ERR_003'))
+				exit()
+			else:
+				break
+
 		else:
 			continue
 
 	else:
 		break
+
 
 
 # getting a copy of the original image
@@ -132,16 +143,21 @@ print("Size - Clusters: " + str(len(areas_clusters)))
 
 
 # ============================================================== BORDER SHAPE
-# checking the shapes of eggs...
+# checking the shapes of eggs and clusters...
 
 print("\nPerforming shape detection...")
 
 shapes = []
+shapes_cls = []
+
 for i in range(len(areas_eggs)):
 	shapes.append(detect.shape_detection(detect.get_egg_border(areas_eggs[i], bimage.shape[:2])) / params[2])
 
+for i in range(len(areas_clusters)):
+	shapes_cls.append(detect.shape_detection(detect.get_egg_border(areas_clusters[i], bimage.shape[:2])) / params[2])
 
 areas_eggs = Classification.classification_by_ipk(shapes, areas_eggs, "sh.ipk")
+areas_clusters = Classification.classification_by_ipk(shapes_cls, areas_clusters, "shcls.ipk")
 
 print("Shape - Eggs: " + str(len(areas_eggs)))
 print("Shape - Clusters: " + str(len(areas_clusters)))
@@ -185,14 +201,14 @@ if len(areas_eggs) > 0:
 	for i in range(len(areas_eggs)):
 		areas_len.append(len(areas_eggs[i]))
 
-	eggs_size_avg = np.median(areas_len)
+	eggs_size_avg = np.mean(areas_len)
 
 else:
 	eggs_size_avg = params[2] * 0.24  # 0.24 is the ratio of average eggs size by circle radius
 
 # Estimating how many eggs fits in each cluster...
 for cluster in areas_clusters:
-	total_eggs += np.ceil(float(len(cluster)) / float(eggs_size_avg))
+	total_eggs += np.round(len(cluster) / eggs_size_avg)
 
 
 
