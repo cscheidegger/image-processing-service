@@ -1,4 +1,5 @@
 const fs = require("fs");
+const path = require("path");
 const request = require("request");
 
 // Python runner
@@ -7,7 +8,6 @@ const { execFile } = require("child_process");
 // Configuration
 const config = require("config");
 const imagesPath = config.get("imagesPath");
-const { ipsVersion } = require('../../package.json');
 
 // Agenda modules
 const Agenda = require("agenda");
@@ -114,10 +114,21 @@ function processImageJob(job, done) {
           results.analysisStartedAt = analysisStartedAt;
           results.analysisFinishedAt = new Date();
 
-          results.ipsData = {
-            ipsVersion
-          };
-
+          // load version from package.json
+          let packageJson;
+          try {
+            packageJson = fs.readFileSync(path.resolve(__dirname, '../../package.json'), 'UTF-8');
+            packageJson = JSON.parse(packageJson);
+            results.ipsData = {
+              ipsVersion: packageJson.ipsVersion
+            };
+          } catch (error) {
+            results.error = {
+              code: "500",
+              message: "O processo de análise retornou um erro inválido."
+            };
+          }
+        
           job.attrs.data = Object.assign(job.attrs.data, results);
           job.save();
 
