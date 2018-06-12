@@ -27,9 +27,25 @@ If you need shell access to the server, get your container name with `docker ps`
 
     docker exec -i -t <imageprocessingservice_container_name> /bin/bash
 
-### Upgrading python scripts
+### Deploying new version to production
 
-For modifications in python scripting to take effect, it is needed to update the property `ipsVersion` in `package.json` file. The AeTrapp's API server will reach endpoint `/api/description` of this IPS to check if there is a new algorithm version available. If so, it will start an re-analysis of samples every X minutes.
+AeTrapp's main API server checks every five minutes the current version of the Image Processing Server, and will perform re-analysis of samples if a new version is found. To start this process:
+
+- Change algorithms code and commit;
+- Change `ipsVersion` value in `package.json` and commit:
+
+```json
+{
+  "name": "image-processing-service",
+  "version": "0.0.1",
+  "ipsVersion": "1.4.0",
+  "description": "Aetrapp Image Processing Service",
+...
+```
+
+- Pull changes to production.
+
+This will start automatically the processes of sample re-analysis by the API server.
 
 ## Changelog
 
