@@ -31,14 +31,14 @@ If you need shell access to the server, get your container name with `docker ps`
 
 AeTrapp's main API server checks every five minutes the current version of the Image Processing Server, and will perform re-analysis of samples if a new version is found. To start this process:
 
-- Change algorithms code and commit;
+- Change algorithm's code and commit;
 - Change `ipsVersion` value in `package.json` and commit:
 
-```json
+```
 {
   "name": "image-processing-service",
   "version": "0.0.1",
-  "ipsVersion": "1.4.0",
+  "ipsVersion": "1.4.0", <- CHANGE THIS LINE
   "description": "Aetrapp Image Processing Service",
 ...
 ```
