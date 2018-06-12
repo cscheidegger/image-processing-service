@@ -16,12 +16,14 @@ from keras_frcnn import roi_helpers
 import keras_frcnn.resnet as nn
 
 sys.setrecursionlimit(40000)
+
+rpath = IO.get_root(__file__)[:IO.get_root(__file__).index('/')]
 config_output_filename = IO.get_root(__file__) + "/config.pickle"
 
 with open(config_output_filename, 'rb') as f_in:
 	C = pickle.load(f_in)
 
-
+print(rpath)
 # turn off any data augmentation at test time
 C.use_horizontal_flips = False
 C.use_vertical_flips = False
@@ -122,9 +124,9 @@ model_classifier_only = Model([feature_map_input, roi_input], classifier)
 
 model_classifier = Model([feature_map_input, roi_input], classifier)
 
-print('Loading weights from {}'.format(C.model_path))
-model_rpn.load_weights(C.model_path, by_name=True)
-model_classifier.load_weights(C.model_path, by_name=True)
+print('Loading weights from {}'.format(rpath + "/model/" + C.model_path))
+model_rpn.load_weights(rpath + "/model/" + C.model_path, by_name=True)
+model_classifier.load_weights(rpath + "/model/" + C.model_path, by_name=True)
 
 model_rpn.compile(optimizer='sgd', loss='mse')
 model_classifier.compile(optimizer='sgd', loss='mse')
