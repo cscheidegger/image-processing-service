@@ -1,7 +1,7 @@
 {
   "name": "image-processing-service",
   "version": "0.0.1",
-  "ipsVersion": "1.4.0",
+  "ipsVersion": "1.4.1",
   "description": "Aetrapp Image Processing Service",
   "main": "index.js",
   "repository": {

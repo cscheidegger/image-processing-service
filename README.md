@@ -47,9 +47,16 @@ AeTrapp's main API server checks every five minutes the current version of the I
 
 This will start automatically the processes of sample re-analysis by the API server.
 
-## Changelog
+# Changelog
 
-No releases yet.
+The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
+and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+
+## 1.4.1
+
+Released: June 12, 2018
+
+To be described.
 
 ## License
 
