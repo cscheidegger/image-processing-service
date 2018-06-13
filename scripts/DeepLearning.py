@@ -20,10 +20,11 @@ sys.setrecursionlimit(40000)
 rpath = IO.get_root(__file__)[:IO.get_root(__file__).index('/')]
 config_output_filename = IO.get_root(__file__) + "/config.pickle"
 
+
 with open(config_output_filename, 'rb') as f_in:
 	C = pickle.load(f_in)
 
-print(rpath)
+
 # turn off any data augmentation at test time
 C.use_horizontal_flips = False
 C.use_vertical_flips = False
@@ -225,46 +226,4 @@ def get_features(img):
 			coords.append(get_real_coordinates(ratio, x1, y1, x2, y2))
 			prob.append([key, float(new_probs[jk])])
 
-	'''
-	all_dets = []
-
-	for key in bboxes:
-		bbox = np.array(bboxes[key])
-
-		new_boxes, new_probs = roi_helpers.non_max_suppression_fast(bbox, np.array(probs[key]), overlap_thresh=0.5)
-		for jk in range(new_boxes.shape[0]):
-			(x1, y1, x2, y2) = new_boxes[jk,:]
-
-			if x1 < 0:
-				x1 = 0
-
-			if x2 < 0:
-				x2 = 0
-
-			if y1 < 0:
-				y1 = 0
-
-			if y2 < 0:
-				y2 = 0
-
-			(real_x1, real_y1, real_x2, real_y2) = get_real_coordinates(ratio, x1, y1, x2, y2)
-
-			cv2.rectangle(img,(real_x1, real_y1), (real_x2, real_y2), (int(class_to_color[key][0]), int(class_to_color[key][1]), int(class_to_color[key][2])),2)
-
-			textLabel = '{}: {}'.format(key,int(100*new_probs[jk]))
-			all_dets.append((key,100*new_probs[jk]))
-
-			(retval,baseLine) = cv2.getTextSize(textLabel,cv2.FONT_HERSHEY_COMPLEX,1,1)
-			textOrg = (real_x1, real_y1-0)
-
-
-			cv2.putText(img, textLabel, textOrg, cv2.FONT_HERSHEY_DUPLEX, 1, (0, 0, 0), 1)
-
-			x = textOrg[0] - 5
-			y = textOrg[1]+baseLine - 5
-			width = textOrg[0]+retval[0] + 5
-			height = textOrg[1]-retval[1] - 5
-
-	cv2.imwrite('/home/joaoherrera/Desktop/out.jpg',img)
-	'''
 	return coords, np.array(prob)
